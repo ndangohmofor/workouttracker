@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Created-By: IntelliJ IDEA
+Built-By: ni_mo
+Build-Jdk: Oracle OpenJDK version 11.0.2
+Implementation-Title: workoutplanner
+Implementation-Version: 0.0.1-SNAPSHOT
+Implementation-Vendor-Id: com.meufty
+Main-Class: ${start-class}
+

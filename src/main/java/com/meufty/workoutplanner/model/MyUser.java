@@ -34,7 +34,7 @@ public class MyUser implements UserDetails {
     private String userName;
     private String email;
     private String password;
-    private boolean locked;
+    private boolean active;
     private boolean enabled;
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
@@ -52,8 +52,8 @@ public class MyUser implements UserDetails {
         this.userName = userName;
         this.email = email;
         this.password = password;
-        this.locked = locked;
-        this.enabled = enabled;
+        this.active = false;
+        this.enabled = true;
         this.userRole = userRole;
     }
 
@@ -69,22 +69,22 @@ public class MyUser implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return isAccountNonExpired();
+        return enabled;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return isAccountNonLocked();
+        return active;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return isCredentialsNonExpired();
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return isEnabled();
+        return enabled;
     }
 
     @Override

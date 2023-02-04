@@ -20,9 +20,9 @@ public class RegistrationService {
         }
         return myUserDetailsService.signUpUser(new MyUser(
                         request.getUsername(),
-                        request.getPassword(),
                         request.getEmail(),
-                UserRole.USER
+                        request.getEmail(),
+                        UserRole.USER
                 )
         );
     }

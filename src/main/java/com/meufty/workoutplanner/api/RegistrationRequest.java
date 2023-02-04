@@ -14,5 +14,7 @@ public class RegistrationRequest {
     private final String lastName;
     private final String username;
     private final String password;
+    private final boolean isActive = false;
+    private final boolean isEnabled = true;
     private final String email;
 }

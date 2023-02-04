@@ -1,5 +1,6 @@
 package com.meufty.workoutplanner.service;
 
+import com.meufty.workoutplanner.model.MyUser;
 import com.meufty.workoutplanner.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,5 +20,9 @@ public class MyUserDetailsService implements UserDetailsService {
             throws UsernameNotFoundException {
         return userRepository.findByUserName(username)
                 .orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND_MSG, username)));
+    }
+
+    public String signUpUser(MyUser myUser){
+        return "";
     }
 }

@@ -18,7 +18,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @Table(name = "app_user", uniqueConstraints = {@UniqueConstraint(columnNames = {"id", "userName"})})
-public class MyUserDetails implements UserDetails {
+public class MyUser implements UserDetails {
 
     @Id
     @SequenceGenerator(
@@ -45,12 +45,10 @@ public class MyUserDetails implements UserDetails {
         return Collections.singletonList(authority);
     }
 
-    public MyUserDetails(String userName,
-                         String email,
-                         String password,
-                         boolean locked,
-                         boolean enabled,
-                         UserRole userRole) {
+    public MyUser(String userName,
+                  String email,
+                  String password,
+                  UserRole userRole) {
         this.userName = userName;
         this.email = email;
         this.password = password;
@@ -93,7 +91,7 @@ public class MyUserDetails implements UserDetails {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        MyUserDetails that = (MyUserDetails) o;
+        MyUser that = (MyUser) o;
         return id != null && Objects.equals(id, that.id);
     }
 

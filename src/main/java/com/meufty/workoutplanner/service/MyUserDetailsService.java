@@ -55,4 +55,8 @@ public class MyUserDetailsService implements UserDetailsService {
 
         return token;
     }
+
+    public int enableUser(String username) {
+        return userRepository.enableUser(username);
+    }
 }

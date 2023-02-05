@@ -15,7 +15,7 @@ import javax.mail.MessagingException;
 @AllArgsConstructor
 public class EmailService implements EmailSender {
 
-    private final static Logger logger = LoggerFactory.getLogger(EmailService.class);
+    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
     private final JavaMailSender mailSender;
 
     @Override
@@ -28,6 +28,7 @@ public class EmailService implements EmailSender {
             helper.setTo(to);
             helper.setSubject("Confirm your email address");
             helper.setFrom("do-not-reply@workoutplanner.com");
+            mailSender.send(mimeMessage);
         } catch (MessagingException e){
             logger.error("Failed to send email", e);
             throw new IllegalStateException("failed to send email");

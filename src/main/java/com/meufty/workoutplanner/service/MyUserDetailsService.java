@@ -17,7 +17,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class MyUserDetailsService implements UserDetailsService {
 
-    private final static String USER_NOT_FOUND_MSG = "user with userName %s not found";
+    private static final String USER_NOT_FOUND_MSG = "user with userName %s not found";
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final ConfirmationTokenService confirmationTokenService;
@@ -33,6 +33,8 @@ public class MyUserDetailsService implements UserDetailsService {
         boolean userExists = userRepository.findByUserName(myUser.getUsername())
                 .isPresent();
         if (userExists) {
+            //TODO: If the user token has not been confirmed, send another email.
+            //TODO: If the user token has already been confirmed then throw the below error
             throw new IllegalStateException("Username: " + myUser.getUsername() + " already taken");
         }
 

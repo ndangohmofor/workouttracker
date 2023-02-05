@@ -1,5 +1,6 @@
 package com.meufty.workoutplanner.model;
 
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,6 +37,7 @@ public class MyUser implements UserDetails {
     private String password;
     private boolean active;
     private boolean enabled;
+    private boolean locked = false;
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
@@ -74,17 +76,12 @@ public class MyUser implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return active;
+        return !locked;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return enabled;
     }
 
     @Override

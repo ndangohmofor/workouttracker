@@ -2,6 +2,9 @@ package com.meufty.workoutplanner.security.config;
 
 import com.meufty.workoutplanner.service.MyUserDetailsService;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -16,8 +19,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    @Autowired
     private final MyUserDetailsService myUserDetailsService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -28,7 +33,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .anyRequest()
                 .authenticated().and()
-                .formLogin();
+                .formLogin().failureHandler(((request, response, exception) -> logger.error(String.valueOf(exception))));
     }
 
     @Override
@@ -39,6 +44,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider(){
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setHideUserNotFoundExceptions(false);
         provider.setPasswordEncoder(bCryptPasswordEncoder);
         provider.setUserDetailsService(myUserDetailsService);
         return provider;

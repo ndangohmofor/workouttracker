@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@Table(name = "confirmation_token", uniqueConstraints = {@UniqueConstraint(columnNames = {"my_user_id"})})
 public class ConfirmationToken {
     @Id
     @SequenceGenerator(

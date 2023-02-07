@@ -18,7 +18,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "app_user", uniqueConstraints = {@UniqueConstraint(columnNames = {"id", "userName"})})
+@Table(name = "app_user", uniqueConstraints = {@UniqueConstraint(columnNames = {"userName"})})
 public class MyUser implements UserDetails {
 
     @Id

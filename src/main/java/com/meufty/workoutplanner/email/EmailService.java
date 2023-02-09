@@ -31,6 +31,7 @@ public class EmailService implements EmailSender {
             helper.setSubject("Confirm your email address");
             helper.setFrom("do-not-reply@workoutplanner.com");
             mailSender.send(mimeMessage);
+            logger.info("Confirmation email sent to: " + to);
         } catch (MessagingException e) {
             logger.error("Failed to send email", e);
             throw new IllegalStateException("failed to send email");

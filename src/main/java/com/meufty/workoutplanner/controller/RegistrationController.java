@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.meufty.workoutplanner.api.RegistrationRequest;
 
+@CrossOrigin
 @RestController
 @RequestMapping(path = "api/v1/registration")
 @AllArgsConstructor

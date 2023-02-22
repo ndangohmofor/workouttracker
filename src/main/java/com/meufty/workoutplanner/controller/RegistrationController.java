@@ -16,7 +16,11 @@ public class RegistrationController {
 
     @PostMapping
     public String register(@RequestBody RegistrationRequest request){
-        return registrationService.register(request);
+        try {
+            return registrationService.register(request);
+        } catch (IllegalStateException e){
+            return e.getMessage();
+        }
     }
 
     @GetMapping(path = "confirm")

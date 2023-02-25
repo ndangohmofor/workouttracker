@@ -28,10 +28,14 @@ public class RegistrationService {
             log.error(request.getEmail() + " is not a valid email address.");
             throw new IllegalStateException(request.getEmail() + " not a valid email. Please correct the email and try again");
         }
-        String token = myUserDetailsService.signUpUser(new MyUser(request.getUsername(), request.getEmail(), request.getEmail(), UserRole.USER));
-        emailSender.send(request.getEmail(), request.getFirstName(), token);
-        log.info("Confirmation email sent successfully to " + request.getEmail());
-        return token;
+        try {
+            String token = myUserDetailsService.signUpUser(new MyUser(request.getUsername(), request.getEmail(), request.getEmail(), UserRole.USER));
+            emailSender.send(request.getEmail(), request.getFirstName(), token);
+            log.info("Confirmation email sent successfully to " + request.getEmail());
+            return token;
+        } catch (IllegalStateException e){
+            return e.getMessage();
+        }
     }
 
     @Transactional

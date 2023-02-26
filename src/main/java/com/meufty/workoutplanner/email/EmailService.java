@@ -1,38 +1,40 @@
 package com.meufty.workoutplanner.email;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
 import javax.mail.internet.MimeMessage;
-
 import javax.mail.MessagingException;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class EmailService implements EmailSender {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
     private static final String LINK = "http://localhost:8090/api/v1/registration/confirm?token=";
     private final JavaMailSender mailSender;
 
+    @Value("${spring.kafka.template.email-topic}")
+    private String kafkaTopic;
+    @Autowired
+    private KafkaTemplate<String, EmailMessage> kafkaTemplate;
+
     @Override
     @Async
     public void send(String to, String name, String token) {
+        EmailMessage message = new EmailMessage(to, name, token, buildEmail(name, token));
         try {
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
-            helper.setText(buildEmail(name, token), true);
-            helper.setTo(to);
-            helper.setSubject("Confirm your email address");
-            helper.setFrom("do-not-reply@workoutplanner.com");
-            mailSender.send(mimeMessage);
+            kafkaTemplate.send(kafkaTopic,message);
             logger.info("Confirmation email sent to: " + to);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             logger.error("Failed to send email", e);
             throw new IllegalStateException("failed to send email");
         }

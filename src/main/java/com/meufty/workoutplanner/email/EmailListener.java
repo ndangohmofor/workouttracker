@@ -1,6 +1,6 @@
 package com.meufty.workoutplanner.email;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -26,10 +26,11 @@ public class EmailListener {
     @KafkaListener(topics = "${spring.kafka.template.email-topic}")
     public void receive(EmailMessage message) throws MessagingException {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
         helper.setTo(message.getTo());
         helper.setSubject("Confirm your email address");
         helper.setFrom("do-not-reply@workoutplanner.com");
+        helper.setText(message.getBody(), true);
         mailSender.send(mimeMessage);
     }
 }

@@ -21,6 +21,7 @@ public class RegistrationService {
     private final ConfirmationTokenService confirmationTokenService;
     private final EmailValidator emailValidator;
     private final EmailSender emailSender;
+    private final String REGISTRATION_CONFIRMATION = "Thanks for completing your registration. Please check your email and activate your account";
 
     public String register(RegistrationRequest request) {
         boolean isValidEmail = emailValidator.test(request.getEmail());
@@ -32,7 +33,7 @@ public class RegistrationService {
             String token = myUserDetailsService.signUpUser(new MyUser(request.getUsername(), request.getEmail(), request.getPassword(), UserRole.USER));
             emailSender.send(request.getEmail(), request.getFirstName(), token);
             log.info("Confirmation email sent successfully to " + request.getEmail());
-            return token;
+            return REGISTRATION_CONFIRMATION;
         } catch (IllegalStateException e){
             return e.getMessage();
         }

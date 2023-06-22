@@ -50,15 +50,15 @@ public class MyUserDetailsService implements UserDetailsService {
         //TODO: If token is expired, then renew the token and resend to the user to confirm the email.
 
         if (userExists && tokenConfirmed) {
-            log.error("Username: " + myUser.getUsername() + " already taken");
-            throw new IllegalStateException("Username: " + myUser.getUsername() + " already taken. Please select another username");
+            log.error("Username: " + myUser.getUsername() + " is already taken");
+            throw new IllegalStateException("Username: " + myUser.getUsername() + " is already taken. Please select another username");
         }
 
         if (userExists) {
             MyUser existingUser = userRepository.findByUsername(myUser.getUsername()).get();
-            log.info("Username: " + myUser.getUsername() + " already registered. Please confirm your email address");
+            log.info("Username: " + myUser.getUsername() + " is already registered. Please confirm your email address");
             mailSender.send(myUser.getEmail(), myUser.getUsername(), String.valueOf(confirmationTokenRepository.findTokenByUserId(existingUser.getId()).get()));
-            throw new IllegalStateException("Username: " + myUser.getUsername() + " registered but not confirmed. Please check and confirm your email address");
+            throw new IllegalStateException("Username: " + myUser.getUsername() + " is registered but not confirmed. Please check and confirm your email address");
         }
         //Everything below happens if the user does not exist => User is created, token is generated and email is sent!
         String encodedPassword = bCryptPasswordEncoder.encode(myUser.getPassword());

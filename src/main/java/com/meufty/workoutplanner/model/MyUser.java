@@ -18,8 +18,8 @@ import java.util.Objects;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "app_user", uniqueConstraints = {@UniqueConstraint(columnNames = {"userName"})})
-public class MyUser implements UserDetails {
+@Table(name = "app_user", uniqueConstraints = {@UniqueConstraint(columnNames = {"username"})})
+public class MyUser {
 
     @Id
     @SequenceGenerator(
@@ -32,7 +32,7 @@ public class MyUser implements UserDetails {
             generator = "user_sequence"
     )
     private Long id;
-    private String userName;
+    private String username;
     private String email;
     private String password;
     private boolean active;
@@ -41,59 +41,15 @@ public class MyUser implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities(){
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority(userRole.name());
-        return Collections.singletonList(authority);
-    }
-
-    public MyUser(String userName,
+    public MyUser(String username,
                   String email,
                   String password,
                   UserRole userRole) {
-        this.userName = userName;
+        this.username = username;
         this.email = email;
         this.password = password;
-        this.active = false;
+        this.active = true;
         this.enabled = true;
         this.userRole = userRole;
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return userName;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return enabled;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return !locked;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        MyUser that = (MyUser) o;
-        return id != null && Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
     }
 }

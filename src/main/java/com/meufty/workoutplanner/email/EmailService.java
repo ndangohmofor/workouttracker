@@ -11,8 +11,12 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.util.concurrent.ListenableFutureCallback;
+
 import javax.mail.internet.MimeMessage;
 import javax.mail.MessagingException;
+import org.springframework.kafka.support.SendResult;
 
 @Service
 @RequiredArgsConstructor
@@ -32,8 +36,20 @@ public class EmailService implements EmailSender {
     public void send(String to, String name, String token) {
         EmailMessage message = new EmailMessage(to, name, token, buildEmail(name, token));
         try {
-            kafkaTemplate.send(kafkaTopic,message);
-            logger.info("Confirmation email sent to: " + to);
+            ListenableFuture<SendResult<String, EmailMessage>> future = kafkaTemplate.send(kafkaTopic,message);
+            future.addCallback(new ListenableFutureCallback<SendResult<String, EmailMessage>>() {
+                @Override
+                public void onFailure(Throwable ex) {
+                    logger.error("Failed to send email", ex);
+                }
+
+                @Override
+                public void onSuccess(SendResult<String, EmailMessage> result) {
+                    logger.info(String.format("Email message to '%s' created in Kafka on topic '%s' on partition '%d' at offset '%d'",
+                            to, result.getRecordMetadata().topic(), result.getRecordMetadata().partition(), result.getRecordMetadata().offset()));
+                }
+            });
+
         } catch (Exception e) {
             logger.error("Failed to send email", e);
             throw new IllegalStateException("failed to send email");

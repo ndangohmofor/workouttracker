@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
  * AccountController
  */
 
+@CrossOrigin
 @RestController
 @RequestMapping(path = "/workout")
 public class AccountController {

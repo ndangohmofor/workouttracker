@@ -48,8 +48,8 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost", "*"));
-        corsConfiguration.setAllowedMethods(Arrays.asList(HttpMethod.GET.name(), HttpMethod.HEAD.name(), HttpMethod.POST.name(), HttpMethod.PUT.name(), HttpMethod.DELETE.name(), HttpMethod.PATCH.name()));
+        corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost", "http://localhost:3000", "http://127.0.0.1", "http://127.0.0.1:3000"));
+        corsConfiguration.setAllowedMethods(Arrays.asList(HttpMethod.GET.name(), HttpMethod.OPTIONS.name(), HttpMethod.HEAD.name(), HttpMethod.POST.name(), HttpMethod.PUT.name(), HttpMethod.DELETE.name(), HttpMethod.PATCH.name()));
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addExposedHeader("Accept");
         corsConfiguration.addExposedHeader("Content-Type");
@@ -68,7 +68,7 @@ public class SecurityConfig {
                 .and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/v*/registration/**", "/api/v*/login/**")
+                .antMatchers("/api/v*/registration/**", "/api/v*/login**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()

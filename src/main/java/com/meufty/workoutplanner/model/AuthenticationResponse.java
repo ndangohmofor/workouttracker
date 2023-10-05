@@ -7,4 +7,5 @@ import lombok.Getter;
 @Getter
 public class AuthenticationResponse {
     private String jwt;
+    private UserRole role;
 }

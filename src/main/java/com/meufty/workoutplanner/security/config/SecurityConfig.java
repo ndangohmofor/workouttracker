@@ -49,6 +49,7 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost", "http://localhost:3000", "http://127.0.0.1", "http://127.0.0.1:3000"));
+        corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setAllowedMethods(Arrays.asList(HttpMethod.GET.name(), HttpMethod.OPTIONS.name(), HttpMethod.HEAD.name(), HttpMethod.POST.name(), HttpMethod.PUT.name(), HttpMethod.DELETE.name(), HttpMethod.PATCH.name()));
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addExposedHeader("Accept");
@@ -72,9 +73,6 @@ public class SecurityConfig {
                 .permitAll()
                 .anyRequest()
                 .authenticated()
-                .and()
-                .formLogin()
-                .failureHandler(((request, response, exception) -> logger.error(String.valueOf(exception))))
                 .and()
                 .rememberMe();
         return http.build();

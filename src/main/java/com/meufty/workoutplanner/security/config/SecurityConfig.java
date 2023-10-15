@@ -1,5 +1,6 @@
 package com.meufty.workoutplanner.security.config;
 
+import com.meufty.workoutplanner.filters.JwtRequestFilter;
 import com.meufty.workoutplanner.service.MyUserDetailsService;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -7,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -15,12 +15,16 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 
 @Configuration
@@ -30,6 +34,8 @@ public class SecurityConfig {
 
     private final MyUserDetailsService myUserDetailsService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Autowired
+    private final JwtRequestFilter jwtRequestFilter;
     private final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -68,13 +74,26 @@ public class SecurityConfig {
                 .cors()
                 .and()
                 .csrf().disable()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(
+                        ((request, response, authException) -> {
+                            response.sendError(
+                                    HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage()
+                            );
+                        })
+                )
+                .and()
                 .authorizeRequests()
-                .antMatchers("/api/v*/registration/**", "/api/v*/login**")
+                .antMatchers("/api/v*/registration/**", "/api/v*/login**", "/api/public/home", "/api/public/**")
                 .permitAll()
+                .antMatchers("/api/v*/admin").hasRole("ADMIN")
                 .anyRequest()
                 .authenticated()
                 .and()
-                .rememberMe();
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

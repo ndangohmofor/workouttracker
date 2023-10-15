@@ -25,4 +25,9 @@ public class AdminController {
     public List<MyUser> getGymUsers(UserRole role) throws Exception{
         return userRepository.findMyUserByRole(role).orElseThrow();
     }
+
+    @GetMapping("allusers")
+    public List<MyUser> getAllUsers() throws Exception {
+        return userRepository.findAll();
+    }
 }

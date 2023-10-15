@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @CrossOrigin
 @AllArgsConstructor
-@RequestMapping("/admin")
+@RequestMapping("/api/v1/admin")
 public class AdminController {
 
     @Autowired

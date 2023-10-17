@@ -43,6 +43,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities());
                 usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            } else {
+                String isRefreshToken = request.getHeader("isRefreshToken");
+                String requestUrl = request.getRequestURL().toString();
+                //Allow for refresh token creation if below conditions are true
+                if (isRefreshToken != null && isRefreshToken.equals(true) && requestUrl.contains("refreshtoken")){
+                    jwtUtil.generateRefreshToken(username);
+                } else {
+                    throw new ServletException("Token expired with no attempt to refresh");
+                }
             }
         }
         filterChain.doFilter(request, response);

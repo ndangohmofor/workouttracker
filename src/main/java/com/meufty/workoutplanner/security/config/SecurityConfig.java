@@ -87,7 +87,7 @@ public class SecurityConfig {
                 )
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/v*/registration/**", "/api/v*/login**", "/api/public/home", "/api/public/**")
+                .antMatchers("/api/v*/registration/**", "/api/v*/login**", "/api/v*/refreshtoken**", "/api/public/home", "/api/public/**")
                 .permitAll()
                 .antMatchers("/api/v*/admin").hasRole("ADMIN")
                 .anyRequest()

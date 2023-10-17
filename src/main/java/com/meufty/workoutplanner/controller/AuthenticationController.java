@@ -25,7 +25,7 @@ import javax.validation.Valid;
 public class AuthenticationController {
 
     @Value("${spring.security.secret.jwt.secret.createLoginTokenExpirationInMs}")
-    private static int LOGIN_EXPIRY_TIME_MS;
+    private static long LOGIN_EXPIRY_TIME_MS;
     private AuthenticationManager authenticationManager;
     private MyUserDetailsService myUserDetailsService;
     private JwtUtil jwtTokenUtil;
@@ -41,7 +41,8 @@ public class AuthenticationController {
         }
         final UserDetails userDetails = myUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         final String jwt = jwtTokenUtil.generateToken(userDetails, LOGIN_EXPIRY_TIME_MS);
+        final String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails.getUsername());
         MyUser user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
-        return ResponseEntity.ok(new AuthenticationResponse(jwt, user.getUserRole()));
+        return ResponseEntity.ok(new AuthenticationResponse(jwt, refreshToken, user.getUserRole()));
     }
 }

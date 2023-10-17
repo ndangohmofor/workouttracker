@@ -69,4 +69,6 @@ public class JwtUtil {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
+
+    //TODO: add methods to revoke both tokens, as well as other parameters of token such as isValid, is Revoked, etc
 }

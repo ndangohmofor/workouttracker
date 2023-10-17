@@ -32,26 +32,9 @@ public class AuthenticationController {
     @Autowired
     AuthenticationService service;
 
-    @Value("${spring.security.secret.jwt.secret.createLoginTokenExpirationInMs}")
-    private static long LOGIN_EXPIRY_TIME_MS;
-    private AuthenticationManager authenticationManager;
-    private MyUserDetailsService myUserDetailsService;
-    private JwtUtil jwtTokenUtil;
-    private UserRepository userRepository;
-
     @PostMapping(path = "/login")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody @Valid AuthenticationRequest authenticationRequest) throws BadCredentialsException {
-        try{
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
-        } catch (BadCredentialsException e){
-//            throw new BadCredentialsException("Incorrect Username or Password", e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        final UserDetails userDetails = myUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-        final String jwt = jwtTokenUtil.generateToken(userDetails, LOGIN_EXPIRY_TIME_MS);
-        final String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails.getUsername());
-        MyUser user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
-        return ResponseEntity.ok(new AuthenticationResponse(jwt, refreshToken, user.getUserRole()));
+       return ResponseEntity.status(200).body(service.authenticate(authenticationRequest));
     }
 
     @PostMapping(path = "/refreshtoken")

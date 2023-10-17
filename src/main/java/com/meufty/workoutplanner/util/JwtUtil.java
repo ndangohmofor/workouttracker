@@ -19,10 +19,10 @@ public class JwtUtil {
     private static String SECRET_KEY;
 
     @Value("${spring.security.secret.jwt.secret.generateTokenExpirationInMs}")
-    private static int GENERATE_TOKEN_EXPIRY_MS;
+    private static long GENERATE_TOKEN_EXPIRY_MS;
 
     @Value("${spring.security.secret.jwt.secret.refreshTokenExpirationInMs}")
-    private int REFRESH_TOKEN_EXPIRY_MS;
+    private long REFRESH_TOKEN_EXPIRY_MS;
 
     public String extractUsername(String token){
         return extractClaim(token, Claims::getSubject);
@@ -50,18 +50,18 @@ public class JwtUtil {
         return createToken(claims, userDetails.getUsername(), GENERATE_TOKEN_EXPIRY_MS);
     }
 
-    public String generateToken(UserDetails userDetails, int expiryTimeInMs){
+    public String generateToken(UserDetails userDetails, long expiryTimeInMs){
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userDetails.getUsername(), expiryTimeInMs);
     }
 
-    private String createToken(Map<String, Object> claims, String subject, int expiryTimeInMs){
+    private String createToken(Map<String, Object> claims, String subject, long expiryTimeInMs){
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() +
                 expiryTimeInMs)).signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 
-    private String generateRefreshToken(Map<String, Object> claims, String subject){
-        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRY_MS))
+    public String generateRefreshToken(String subject){
+        return Jwts.builder().setClaims(new HashMap<>()).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRY_MS))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 

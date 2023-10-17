@@ -3,12 +3,11 @@ package com.meufty.workoutplanner.controller;
 import com.meufty.workoutplanner.model.AuthenticationRequest;
 import com.meufty.workoutplanner.model.AuthenticationResponse;
 import com.meufty.workoutplanner.model.MyUser;
-import com.meufty.workoutplanner.model.MyUserDetails;
 import com.meufty.workoutplanner.repository.UserRepository;
 import com.meufty.workoutplanner.service.MyUserDetailsService;
 import com.meufty.workoutplanner.util.JwtUtil;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,6 +24,8 @@ import javax.validation.Valid;
 @RequestMapping(path = "/api/v1")
 public class AuthenticationController {
 
+    @Value("${spring.security.secret.jwt.secret.createLoginTokenExpirationInMs}")
+    private static int LOGIN_EXPIRY_TIME_MS;
     private AuthenticationManager authenticationManager;
     private MyUserDetailsService myUserDetailsService;
     private JwtUtil jwtTokenUtil;
@@ -39,7 +40,7 @@ public class AuthenticationController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         final UserDetails userDetails = myUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-        final String jwt = jwtTokenUtil.generateToken(userDetails);
+        final String jwt = jwtTokenUtil.generateToken(userDetails, LOGIN_EXPIRY_TIME_MS);
         MyUser user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
         return ResponseEntity.ok(new AuthenticationResponse(jwt, user.getUserRole()));
     }

@@ -2,6 +2,7 @@ package com.meufty.workoutplanner.controller;
 
 import com.meufty.workoutplanner.service.RegistrationService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.meufty.workoutplanner.api.RegistrationRequest;
@@ -15,11 +16,11 @@ public class RegistrationController {
     private RegistrationService registrationService;
 
     @PostMapping
-    public String register(@RequestBody RegistrationRequest request){
+    public ResponseEntity<String> register(@RequestBody RegistrationRequest request){
         try {
-            return registrationService.register(request);
+            return ResponseEntity.ok(registrationService.register(request));
         } catch (IllegalStateException e){
-            return e.getMessage();
+            return ResponseEntity.status(409).body(e.getMessage());
         }
     }
 

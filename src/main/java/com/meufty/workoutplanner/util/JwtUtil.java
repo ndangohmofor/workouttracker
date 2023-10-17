@@ -16,7 +16,13 @@ import java.util.function.Function;
 public class JwtUtil {
 
     @Value ("${spring.security.secret.jwt.secret.key}")
-    private String SECRET_KEY;
+    private static String SECRET_KEY;
+
+    @Value("${spring.security.secret.jwt.secret.generateTokenExpirationInMs}")
+    private static int GENERATE_TOKEN_EXPIRY_MS;
+
+    @Value("${spring.security.secret.jwt.secret.refreshTokenExpirationInMs}")
+    private int REFRESH_TOKEN_EXPIRY_MS;
 
     public String extractUsername(String token){
         return extractClaim(token, Claims::getSubject);
@@ -41,12 +47,22 @@ public class JwtUtil {
 
     public String generateToken(UserDetails userDetails){
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
+        return createToken(claims, userDetails.getUsername(), GENERATE_TOKEN_EXPIRY_MS);
     }
 
-    private String createToken(Map<String, Object> claims, String subject){
+    public String generateToken(UserDetails userDetails, int expiryTimeInMs){
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, userDetails.getUsername(), expiryTimeInMs);
+    }
+
+    private String createToken(Map<String, Object> claims, String subject, int expiryTimeInMs){
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() +
-                1000 * 60 * 60 * 10)).signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
+                expiryTimeInMs)).signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
+    }
+
+    private String generateRefreshToken(Map<String, Object> claims, String subject){
+        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRY_MS))
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 
     public Boolean validateToken(String token, UserDetails userDetails){

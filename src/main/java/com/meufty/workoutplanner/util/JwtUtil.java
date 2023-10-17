@@ -16,10 +16,10 @@ import java.util.function.Function;
 public class JwtUtil {
 
     @Value ("${spring.security.secret.jwt.secret.key}")
-    private static String SECRET_KEY;
+    private String SECRET_KEY;
 
     @Value("${spring.security.secret.jwt.secret.generateTokenExpirationInMs}")
-    private static long GENERATE_TOKEN_EXPIRY_MS;
+    private long GENERATE_TOKEN_EXPIRY_MS;
 
     @Value("${spring.security.secret.jwt.secret.refreshTokenExpirationInMs}")
     private long REFRESH_TOKEN_EXPIRY_MS;

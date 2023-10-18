@@ -39,7 +39,7 @@ public class AuthenticationController {
     }
 
     @GetMapping(path = "/refreshtoken")
-    public ResponseEntity<?> refreshToken(HttpServletRequest request) throws IOException {
+    public ResponseEntity<?> refreshToken(HttpServletRequest request) throws Exception {
         return ResponseEntity.ok(service.refreshToken(request));
     }
 }

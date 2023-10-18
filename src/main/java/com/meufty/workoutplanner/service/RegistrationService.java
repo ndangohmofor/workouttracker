@@ -30,7 +30,7 @@ public class RegistrationService {
             throw new IllegalStateException(request.getEmail() + " not a valid email. Please correct the email and try again");
         }
         try {
-            String token = myUserDetailsService.signUpUser(new MyUser(request.getUsername(), request.getEmail(), request.getPassword(), UserRole.USER));
+            String token = myUserDetailsService.signUpUser(new MyUser(request.getUsername(), request.getEmail(), request.getPassword(), UserRole.ROLE_USER));
             emailSender.send(request.getEmail(), request.getFirstName(), token);
             log.info("Confirmation email sent successfully to " + request.getEmail());
             return REGISTRATION_CONFIRMATION;

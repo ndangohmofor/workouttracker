@@ -6,6 +6,7 @@ import com.meufty.workoutplanner.model.AuthenticationResponse;
 import com.meufty.workoutplanner.model.MyUser;
 import com.meufty.workoutplanner.repository.UserRepository;
 import com.meufty.workoutplanner.util.JwtUtil;
+import io.jsonwebtoken.impl.DefaultClaims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,8 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -37,10 +40,6 @@ public class AuthenticationService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private JwtUtil jwtUtil;
-    private final UserRepository repository;
-
     public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest){
         try{
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
@@ -54,27 +53,12 @@ public class AuthenticationService {
         MyUser user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
         return new AuthenticationResponse(jwt, refreshToken, user.getUserRole());
     }
-    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        final String refreshToken;
-        MyUser myUser = null;
-        if (authHeader == null ||!authHeader.startsWith("Bearer ")){
-            return;
-        }
-        refreshToken = authHeader.substring(7);
-        String username = jwtUtil.extractUsername(refreshToken);
-        if (username != null){
-            myUser = repository.findByUsername(username)
-                    .orElseThrow();
-        }
-
-        assert myUser != null;
-        UserDetails userDetails = myUserDetailsService.loadUserByUsername(myUser.getUsername());
-
-        if (jwtUtil.validateToken(refreshToken, userDetails)){
-            var accessToken = jwtUtil.generateToken(userDetails);
-            var authResponse = new AuthenticationResponse(accessToken, refreshToken, myUser.getUserRole());
-            new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
-        }
+    public ResponseEntity<?> refreshToken(HttpServletRequest request) throws Exception {
+       //Get the claims from the request
+        DefaultClaims claims = (DefaultClaims) request.getAttribute("claims");
+        HashMap<String, Object> expectedMap = new HashMap<>(claims);
+        String token = jwtTokenUtil.generateRefreshToken(expectedMap, expectedMap.get("sub").toString());
+        MyUser myUser = userRepository.findByUsername(jwtTokenUtil.extractUsername(token)).orElseThrow();
+        return ResponseEntity.ok(new AuthenticationResponse(token, request.getAttribute("refreshToken").toString(), myUser.getUserRole()));
     }
 }

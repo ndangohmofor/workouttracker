@@ -7,6 +7,7 @@ import com.meufty.workoutplanner.repository.UserRepository;
 import com.meufty.workoutplanner.service.AuthenticationService;
 import com.meufty.workoutplanner.service.MyUserDetailsService;
 import com.meufty.workoutplanner.util.JwtUtil;
+import com.sun.mail.iap.Response;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,7 +39,7 @@ public class AuthenticationController {
     }
 
     @GetMapping(path = "/refreshtoken")
-    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        service.refreshToken(request, response);
+    public ResponseEntity<?> refreshToken(HttpServletRequest request) throws IOException {
+        return ResponseEntity.ok(service.refreshToken(request));
     }
 }

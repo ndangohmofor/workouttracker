@@ -65,6 +65,11 @@ public class JwtUtil {
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 
+    public String generateRefreshToken(HashMap<String, Object> map, String subject){
+        return Jwts.builder().setClaims(map).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRY_MS))
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
+    }
+
     public Boolean validateToken(String token, UserDetails userDetails){
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));

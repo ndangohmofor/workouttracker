@@ -49,7 +49,7 @@ public class AuthenticationService {
         }
         final UserDetails userDetails = myUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         final String jwt = jwtTokenUtil.generateToken(userDetails, LOGIN_EXPIRY_TIME_MS);
-        final String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails.getUsername());
+        final String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
         MyUser user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
         return new AuthenticationResponse(jwt, refreshToken, user.getUserRole());
     }

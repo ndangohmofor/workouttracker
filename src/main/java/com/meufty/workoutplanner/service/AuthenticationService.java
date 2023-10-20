@@ -1,17 +1,15 @@
 package com.meufty.workoutplanner.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.meufty.workoutplanner.model.AuthenticationRequest;
 import com.meufty.workoutplanner.model.AuthenticationResponse;
 import com.meufty.workoutplanner.model.MyUser;
 import com.meufty.workoutplanner.repository.UserRepository;
 import com.meufty.workoutplanner.util.JwtUtil;
-import io.jsonwebtoken.impl.DefaultClaims;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,23 +18,25 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
+
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
 
     @Value("${spring.security.secret.jwt.secret.createLoginTokenExpirationInMs}")
-    private static long LOGIN_EXPIRY_TIME_MS;
+    private long LOGIN_EXPIRY_TIME_MS;
+
     @Autowired
     private AuthenticationManager authenticationManager;
+
     @Autowired
     private MyUserDetailsService myUserDetailsService;
+
     @Autowired
     private JwtUtil jwtTokenUtil;
+
     @Autowired
     private UserRepository userRepository;
 
@@ -54,11 +54,13 @@ public class AuthenticationService {
         return new AuthenticationResponse(jwt, refreshToken, user.getUserRole());
     }
     public ResponseEntity<?> refreshToken(HttpServletRequest request) throws Exception {
-       //Get the claims from the request
-        DefaultClaims claims = (DefaultClaims) request.getAttribute("claims");
-        HashMap<String, Object> expectedMap = new HashMap<>(claims);
-        String token = jwtTokenUtil.generateRefreshToken(expectedMap, expectedMap.get("sub").toString());
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String refreshToken = authHeader.substring(7);
+        Claims claims = jwtTokenUtil.extractAllClaims(refreshToken);
+        HashMap<String, Object> expectedMap = new HashMap<>();
+        expectedMap.put("role", claims);
+        String token = jwtTokenUtil.generateRefreshToken(expectedMap, (String) expectedMap.get("sub"));
         MyUser myUser = userRepository.findByUsername(jwtTokenUtil.extractUsername(token)).orElseThrow();
-        return ResponseEntity.ok(new AuthenticationResponse(token, request.getAttribute("refreshToken").toString(), myUser.getUserRole()));
+        return ResponseEntity.ok(new AuthenticationResponse(token, refreshToken, myUser.getUserRole()));
     }
 }

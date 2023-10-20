@@ -1,10 +1,12 @@
 package com.meufty.workoutplanner.util;
 
+import com.meufty.workoutplanner.model.MyUserDetails;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +41,7 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
 
-    private Claims extractAllClaims(String token){
+    public Claims extractAllClaims(String token){
         return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
     }
 
@@ -68,9 +70,9 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String generateRefreshToken(String subject){
+    public String generateRefreshToken(UserDetails myUserDetails){
         return Jwts.builder().setClaims(new HashMap<>())
-                .setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRY_MS))
+                .setSubject(myUserDetails.getUsername()).setIssuedAt(new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRY_MS))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 

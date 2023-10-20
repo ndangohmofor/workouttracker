@@ -3,6 +3,7 @@ package com.meufty.workoutplanner.service;
 import com.meufty.workoutplanner.model.AuthenticationRequest;
 import com.meufty.workoutplanner.model.AuthenticationResponse;
 import com.meufty.workoutplanner.model.MyUser;
+import com.meufty.workoutplanner.model.MyUserDetails;
 import com.meufty.workoutplanner.repository.UserRepository;
 import com.meufty.workoutplanner.util.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -14,11 +15,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -56,10 +59,11 @@ public class AuthenticationService {
     public ResponseEntity<?> refreshToken(HttpServletRequest request) throws Exception {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         String refreshToken = authHeader.substring(7);
-        Claims claims = jwtTokenUtil.extractAllClaims(refreshToken);
+        String username = jwtTokenUtil.extractUsername(refreshToken);
+        UserDetails userDetails = myUserDetailsService.loadUserByUsername(username);
         HashMap<String, Object> expectedMap = new HashMap<>();
-        expectedMap.put("role", claims);
-        String token = jwtTokenUtil.generateRefreshToken(expectedMap, (String) expectedMap.get("sub"));
+        expectedMap.put("role", userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+        String token = jwtTokenUtil.generateRefreshToken(expectedMap, username);
         MyUser myUser = userRepository.findByUsername(jwtTokenUtil.extractUsername(token)).orElseThrow();
         return ResponseEntity.ok(new AuthenticationResponse(token, refreshToken, myUser.getUserRole()));
     }

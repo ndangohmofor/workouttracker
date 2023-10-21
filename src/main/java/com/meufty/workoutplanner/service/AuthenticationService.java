@@ -51,23 +51,21 @@ public class AuthenticationService {
         final String jwt = jwtTokenUtil.generateToken(userDetails, LOGIN_EXPIRY_TIME_MS);
         final String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
         MyUser user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
-        var refreshjwt = Token.builder()
+        var refreshjwt = saveUserGeneeratedToken(refreshToken, user);
+        var token = saveUserGeneeratedToken(jwt, user);
+        tokenRepository.save(refreshjwt);
+        tokenRepository.save(token);
+        return new AuthenticationResponse(jwt, refreshToken, user.getUserRole());
+    }
+
+    private static Token saveUserGeneeratedToken(String token, MyUser user) {
+        return Token.builder()
                 .user(user)
-                .token(refreshToken)
-                .tokenType(TokenType.REFRESH)
-                .revoked(false)
-                .expired(false)
-                .build();
-        var token = Token.builder()
-                .user(user)
-                .token(jwt)
+                .token(token)
                 .tokenType(TokenType.BEARER)
                 .expired(false)
                 .revoked(false)
                 .build();
-        tokenRepository.save(refreshjwt);
-        tokenRepository.save(token);
-        return new AuthenticationResponse(jwt, refreshToken, user.getUserRole());
     }
 
     public ResponseEntity<?> refreshToken(HttpServletRequest request) throws Exception {

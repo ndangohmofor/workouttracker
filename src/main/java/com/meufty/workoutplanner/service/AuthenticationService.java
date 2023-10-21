@@ -77,6 +77,7 @@ public class AuthenticationService {
         expectedMap.put("role", userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
         String token = jwtTokenUtil.generateRefreshToken(expectedMap, username);
         MyUser myUser = userRepository.findByUsername(jwtTokenUtil.extractUsername(token)).orElseThrow();
+        saveUserGeneeratedToken(token, myUser);
         return ResponseEntity.ok(new AuthenticationResponse(token, refreshToken, myUser.getUserRole()));
     }
 }

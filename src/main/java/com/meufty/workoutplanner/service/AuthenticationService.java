@@ -49,18 +49,18 @@ public class AuthenticationService {
         final String jwt = jwtTokenUtil.generateToken(userDetails, LOGIN_EXPIRY_TIME_MS);
         final String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
         MyUser user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
-        var refreshjwt = saveUserGeneeratedToken(refreshToken, user);
-        var token = saveUserGeneeratedToken(jwt, user);
+        var refreshjwt = saveUserGeneeratedToken(refreshToken, user, TokenType.REFRESH);
+        var token = saveUserGeneeratedToken(jwt, user, TokenType.BEARER);
         tokenRepository.save(refreshjwt);
         tokenRepository.save(token);
         return new AuthenticationResponse(jwt, refreshToken, user.getUserRole());
     }
 
-    private static Token saveUserGeneeratedToken(String token, MyUser user) {
+    private static Token saveUserGeneeratedToken(String token, MyUser user, TokenType type) {
         return Token.builder()
                 .user(user)
                 .token(token)
-                .tokenType(TokenType.BEARER)
+                .tokenType(type)
                 .expired(false)
                 .revoked(false)
                 .build();
@@ -75,7 +75,7 @@ public class AuthenticationService {
         expectedMap.put("role", userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
         String token = jwtTokenUtil.generateRefreshToken(expectedMap, username);
         MyUser myUser = userRepository.findByUsername(jwtTokenUtil.extractUsername(token)).orElseThrow();
-        saveUserGeneeratedToken(token, myUser);
+        saveUserGeneeratedToken(token, myUser, TokenType.BEARER);
         return ResponseEntity.ok(new AuthenticationResponse(token, refreshToken, myUser.getUserRole()));
     }
 }

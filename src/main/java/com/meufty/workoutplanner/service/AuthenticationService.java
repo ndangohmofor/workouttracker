@@ -89,4 +89,14 @@ public class AuthenticationService {
         });
         tokenRepository.saveAll(validUserTokens);
     }
+
+    private void revokeAllUserAccessTokens(MyUser myUser){
+        var validUserAccessTokens = tokenRepository.findAllValidAccessTokensByUser(myUser.getId());
+        if (validUserAccessTokens.isEmpty()) return;
+        validUserAccessTokens.forEach(t -> {
+            t.setExpired(true);
+            t.setRevoked(true);
+        });
+        tokenRepository.saveAll(validUserAccessTokens);
+    }
 }

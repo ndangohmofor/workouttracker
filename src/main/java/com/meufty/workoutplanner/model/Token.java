@@ -1,5 +1,6 @@
 package com.meufty.workoutplanner.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.security.core.userdetails.User;
 
@@ -27,5 +28,6 @@ public class Token {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private MyUser user;
 }

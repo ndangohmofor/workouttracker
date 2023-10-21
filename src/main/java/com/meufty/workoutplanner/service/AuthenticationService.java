@@ -1,13 +1,12 @@
 package com.meufty.workoutplanner.service;
 
-import com.meufty.workoutplanner.model.AuthenticationRequest;
-import com.meufty.workoutplanner.model.AuthenticationResponse;
-import com.meufty.workoutplanner.model.MyUser;
-import com.meufty.workoutplanner.model.MyUserDetails;
+import com.meufty.workoutplanner.model.*;
+import com.meufty.workoutplanner.repository.TokenRepository;
 import com.meufty.workoutplanner.repository.UserRepository;
 import com.meufty.workoutplanner.util.JwtUtil;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -30,23 +29,21 @@ public class AuthenticationService {
 
     @Value("${spring.security.secret.jwt.secret.createLoginTokenExpirationInMs}")
     private long LOGIN_EXPIRY_TIME_MS;
-
     @Autowired
     private AuthenticationManager authenticationManager;
-
     @Autowired
     private MyUserDetailsService myUserDetailsService;
-
     @Autowired
     private JwtUtil jwtTokenUtil;
-
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private TokenRepository tokenRepository;
 
-    public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest){
-        try{
+    public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) {
+        try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
-        } catch (BadCredentialsException e){
+        } catch (BadCredentialsException e) {
             throw new BadCredentialsException("Incorrect Username or Password", e);
 //            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -54,8 +51,25 @@ public class AuthenticationService {
         final String jwt = jwtTokenUtil.generateToken(userDetails, LOGIN_EXPIRY_TIME_MS);
         final String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
         MyUser user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
+        var refreshjwt = Token.builder()
+                .user(user)
+                .token(refreshToken)
+                .tokenType(TokenType.REFRESH)
+                .revoked(false)
+                .expired(false)
+                .build();
+        var token = Token.builder()
+                .user(user)
+                .token(jwt)
+                .tokenType(TokenType.BEARER)
+                .expired(false)
+                .revoked(false)
+                .build();
+        tokenRepository.save(refreshjwt);
+        tokenRepository.save(token);
         return new AuthenticationResponse(jwt, refreshToken, user.getUserRole());
     }
+
     public ResponseEntity<?> refreshToken(HttpServletRequest request) throws Exception {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         String refreshToken = authHeader.substring(7);

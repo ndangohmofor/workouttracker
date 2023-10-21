@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -40,6 +41,8 @@ public class MyUser {
     private boolean locked = false;
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
+    @OneToMany(mappedBy = "app_user")
+    private List<Token> tokens;
 
     public MyUser(String username,
                   String email,

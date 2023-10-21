@@ -51,6 +51,7 @@ public class AuthenticationService {
         MyUser user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
         var refreshjwt = saveUserGeneeratedToken(refreshToken, user, TokenType.REFRESH);
         var token = saveUserGeneeratedToken(jwt, user, TokenType.BEARER);
+        revokeAllUserTokens(user);
         tokenRepository.save(refreshjwt);
         tokenRepository.save(token);
         return new AuthenticationResponse(jwt, refreshToken, user.getUserRole());

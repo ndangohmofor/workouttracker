@@ -1,5 +1,6 @@
 package com.meufty.workoutplanner.filters;
 
+import com.meufty.workoutplanner.repository.TokenRepository;
 import com.meufty.workoutplanner.service.MyUserDetailsService;
 import com.meufty.workoutplanner.util.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -26,6 +27,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private TokenRepository tokenRepository;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
@@ -42,7 +46,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.myUserDetailsService.loadUserByUsername(username);
 
-                if (jwtUtil.validateToken(jwt, userDetails)) {
+                var isTokenValid = tokenRepository.findByToken(jwt)
+                        .map(t -> !t.isExpired() && !t.isRevoked())
+                        .orElse(false);
+
+                if (jwtUtil.validateToken(jwt, userDetails) && isTokenValid) {
                     UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities());
                     usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);

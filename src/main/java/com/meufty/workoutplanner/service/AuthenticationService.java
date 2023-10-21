@@ -78,4 +78,14 @@ public class AuthenticationService {
         saveUserGeneeratedToken(token, myUser, TokenType.BEARER);
         return ResponseEntity.ok(new AuthenticationResponse(token, refreshToken, myUser.getUserRole()));
     }
+
+    private void revokeAllUserTokens(MyUser myUser){
+        var validUserTokens = tokenRepository.findAllValidTokensByUser(myUser.getId());
+        if (validUserTokens.isEmpty()) return;
+        validUserTokens.forEach(t -> {
+            t.setExpired(true);
+            t.setRevoked(true);
+        });
+        tokenRepository.saveAll(validUserTokens);
+    }
 }

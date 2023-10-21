@@ -49,15 +49,15 @@ public class AuthenticationService {
         final String jwt = jwtTokenUtil.generateToken(userDetails, LOGIN_EXPIRY_TIME_MS);
         final String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
         MyUser user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
-        var refreshjwt = saveUserGeneeratedToken(refreshToken, user, TokenType.REFRESH);
-        var token = saveUserGeneeratedToken(jwt, user, TokenType.BEARER);
+        var refreshjwt = saveUserGeneratedToken(refreshToken, user, TokenType.REFRESH);
+        var token = saveUserGeneratedToken(jwt, user, TokenType.BEARER);
         revokeAllUserTokens(user);
         tokenRepository.save(refreshjwt);
         tokenRepository.save(token);
         return new AuthenticationResponse(jwt, refreshToken, user.getUserRole());
     }
 
-    private static Token saveUserGeneeratedToken(String token, MyUser user, TokenType type) {
+    private static Token saveUserGeneratedToken(String token, MyUser user, TokenType type) {
         return Token.builder()
                 .user(user)
                 .token(token)
@@ -77,7 +77,8 @@ public class AuthenticationService {
         String token = jwtTokenUtil.generateRefreshToken(expectedMap, username);
         MyUser myUser = userRepository.findByUsername(jwtTokenUtil.extractUsername(token)).orElseThrow();
         revokeAllUserAccessTokens(myUser);
-        saveUserGeneeratedToken(token, myUser, TokenType.BEARER);
+        Token newToken = saveUserGeneratedToken(token, myUser, TokenType.BEARER);
+        tokenRepository.save(newToken);
         return ResponseEntity.ok(new AuthenticationResponse(token, refreshToken, myUser.getUserRole()));
     }
 
@@ -95,8 +96,8 @@ public class AuthenticationService {
         var validUserAccessTokens = tokenRepository.findAllValidAccessTokensByUser(myUser.getId());
         if (validUserAccessTokens.isEmpty()) return;
         validUserAccessTokens.forEach(t -> {
-            t.setExpired(true);
             t.setRevoked(true);
+            t.setExpired(true);
         });
         tokenRepository.saveAll(validUserAccessTokens);
     }

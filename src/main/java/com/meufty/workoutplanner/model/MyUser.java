@@ -41,7 +41,7 @@ public class MyUser {
     private boolean locked = false;
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
-    @OneToMany(mappedBy = "app_user")
+    @OneToMany(mappedBy = "user")
     private List<Token> tokens;
 
     public MyUser(String username,

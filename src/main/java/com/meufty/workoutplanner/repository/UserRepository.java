@@ -23,6 +23,6 @@ public interface UserRepository extends JpaRepository<MyUser, Long> {
     "SET a.active = true WHERE a.username = ?1")
     int enableUser(String username);
 
-    @Query("SELECT mu.username, mu.email, mu.enabled, mu.locked FROM MyUser mu WHERE mu.userRole = ?1")
-    Optional<List<MyUser>> findMyUserByRole(Enum<UserRole> userRole);
+    @Query("SELECT mu.id, mu.locked, mu.enabled, mu.username, mu.email, mu.password, mu.userRole FROM MyUser mu WHERE mu.userRole = ?1")
+    Optional<List<MyUser>> findMyUserByRole(UserRole userRole);
 }

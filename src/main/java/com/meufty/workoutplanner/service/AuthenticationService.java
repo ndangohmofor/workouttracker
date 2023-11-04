@@ -7,7 +7,9 @@ import com.meufty.workoutplanner.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.server.Cookie;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,8 +17,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CookieValue;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
@@ -38,7 +42,7 @@ public class AuthenticationService {
     @Autowired
     private TokenRepository tokenRepository;
 
-    public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) {
+    public ResponseEntity<AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest, HttpServletResponse servletResponse) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
         } catch (BadCredentialsException e) {
@@ -54,7 +58,10 @@ public class AuthenticationService {
         revokeAllUserTokens(user);
         tokenRepository.save(refreshjwt);
         tokenRepository.save(token);
-        return new AuthenticationResponse(jwt, refreshToken, user.getUserRole());
+        AuthenticationResponse response = new AuthenticationResponse(jwt, refreshToken, user.getUserRole());
+        ResponseCookie authCookie = getRefreshTokenCookie(refreshjwt);
+        servletResponse.addHeader("Set-Cookie", authCookie.toString());
+        return ResponseEntity.ok().body(response);
     }
 
     private static Token saveUserGeneratedToken(String token, MyUser user, TokenType type) {
@@ -67,9 +74,7 @@ public class AuthenticationService {
                 .build();
     }
 
-    public ResponseEntity<?> refreshToken(HttpServletRequest request) throws Exception {
-        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        String refreshToken = authHeader.substring(7);
+    public ResponseEntity<AuthenticationResponse> refreshToken(String refreshToken) throws Exception {
         String username = jwtTokenUtil.extractUsername(refreshToken);
         UserDetails userDetails = myUserDetailsService.loadUserByUsername(username);
         HashMap<String, Object> expectedMap = new HashMap<>();
@@ -79,7 +84,20 @@ public class AuthenticationService {
         revokeAllUserAccessTokens(myUser);
         Token newToken = saveUserGeneratedToken(token, myUser, TokenType.BEARER);
         tokenRepository.save(newToken);
-        return ResponseEntity.ok(new AuthenticationResponse(token, refreshToken, myUser.getUserRole()));
+        AuthenticationResponse response = new AuthenticationResponse(token, refreshToken, myUser.getUserRole());
+        return ResponseEntity.ok(response);
+    }
+
+
+    private static ResponseCookie getRefreshTokenCookie(Token newToken) {
+        return ResponseCookie.from("refreshToken", newToken.getToken())
+                .httpOnly(true)
+                //TODO: Enable the secure parameter to get the cookie to be transmitted over https
+//                .secure(true)
+                .maxAge(86400)
+                .sameSite(Cookie.SameSite.NONE.attributeValue())
+                .domain("localhost")
+                .build();
     }
 
     private void revokeAllUserTokens(MyUser myUser){

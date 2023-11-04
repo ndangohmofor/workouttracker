@@ -1,9 +1,15 @@
 package com.meufty.workoutplanner.util;
 
+import com.meufty.workoutplanner.model.MyUser;
 import com.meufty.workoutplanner.model.MyUserDetails;
+import com.meufty.workoutplanner.model.Token;
+import com.meufty.workoutplanner.repository.TokenRepository;
+import com.meufty.workoutplanner.repository.UserRepository;
+import com.meufty.workoutplanner.service.LogoutService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -12,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -27,6 +34,11 @@ public class JwtUtil {
 
     @Value("${spring.security.secret.jwt.secret.refreshTokenExpirationInMs}")
     private long REFRESH_TOKEN_EXPIRY_MS;
+
+    @Autowired
+    UserRepository userRepository;
+    @Autowired
+    TokenRepository tokenRepository;
 
     public String extractUsername(String token){
         return extractClaim(token, Claims::getSubject);
@@ -84,6 +96,29 @@ public class JwtUtil {
     public Boolean validateToken(String token, UserDetails userDetails){
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    public void deleteAllUserTokens(String refreshToken) {
+        var username = extractUsername(refreshToken);
+        MyUser myUser = userRepository.findByUsername(username).orElse(null);
+        assert myUser != null;
+        List<Token> tokens = tokenRepository.findAllByUser(myUser);
+        if (tokens.isEmpty()) return;
+        //Revoke, expire and delete all jwt tokens the current belong to the user
+        tokenRepository.deleteAll(tokens);
+    }
+
+    public void deleteAllUserTokens(MyUser myUser) {
+        List<Token> tokens = tokenRepository.findAllByUser(myUser);
+        //Revoke, expire and delete all jwt tokens the current belong to the user
+        if (tokens.isEmpty()) return;
+        tokenRepository.deleteAll(tokens);
+    }
+
+    public void revokeUserJwtTokens(MyUser myUser){
+        var validUserAccessTokens = tokenRepository.findAllJwtTokensByUser(myUser.getId());
+        if (validUserAccessTokens.isEmpty()) return;
+        tokenRepository.deleteAll(validUserAccessTokens);
     }
 
     //TODO: add methods to revoke both tokens, as well as other parameters of token such as isValid, is Revoked, etc

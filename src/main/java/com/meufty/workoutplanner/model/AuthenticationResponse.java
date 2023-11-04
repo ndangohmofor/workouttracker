@@ -11,5 +11,6 @@ public class AuthenticationResponse {
     private String jwtLoginToken;
     @JsonProperty("refresh_token")
     private String jwtRefreshToken;
+    private String username;
     private UserRole role;
 }

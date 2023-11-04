@@ -8,6 +8,9 @@ import com.meufty.workoutplanner.repository.UserRepository;
 import com.meufty.workoutplanner.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.token.TokenService;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -58,5 +61,10 @@ public class LogoutService implements LogoutHandler {
             token.setRevoked(true);
             tokenRepository.delete(token);
         });
+
+        ResponseCookie deleteRefreshTokenCookie = ResponseCookie.from("refreshToken", null)
+                .build();
+
+        ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, deleteRefreshTokenCookie.toString()).build();
     }
 }

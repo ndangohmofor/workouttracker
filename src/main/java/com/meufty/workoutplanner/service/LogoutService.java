@@ -30,7 +30,7 @@ public class LogoutService implements LogoutHandler {
         if (storedToken != null){
             storedToken.setRevoked(true);
             storedToken.setExpired(true);
-            tokenRepository.save(storedToken);
+            tokenRepository.delete(storedToken);
         }
     }
 }

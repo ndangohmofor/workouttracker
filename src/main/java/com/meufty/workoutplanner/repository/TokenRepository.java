@@ -1,5 +1,6 @@
 package com.meufty.workoutplanner.repository;
 
+import com.meufty.workoutplanner.model.MyUser;
 import com.meufty.workoutplanner.model.Token;
 import com.meufty.workoutplanner.model.TokenType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,6 @@ public interface TokenRepository extends JpaRepository<Token, Integer> {
     List<Token> findAllValidAccessTokensByUser(Long userId);
 
     Optional<Token> findByToken(String token);
+
+    List<Token> findAllByUser(MyUser user);
 }

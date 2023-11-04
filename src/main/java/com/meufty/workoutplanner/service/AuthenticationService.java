@@ -7,8 +7,6 @@ import com.meufty.workoutplanner.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.server.Cookie;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,9 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.CookieValue;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.stream.Collectors;
@@ -55,23 +51,17 @@ public class AuthenticationService {
         MyUser user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
         var refreshjwt = saveUserGeneratedToken(refreshToken, user, TokenType.REFRESH);
         var token = saveUserGeneratedToken(jwt, user, TokenType.BEARER);
-        revokeAllUserTokens(user);
+        jwtTokenUtil.deleteAllUserTokens(user);
         tokenRepository.save(refreshjwt);
         tokenRepository.save(token);
-        AuthenticationResponse response = new AuthenticationResponse(jwt, refreshToken, user.getUserRole());
+        AuthenticationResponse response = new AuthenticationResponse(jwt, refreshToken, user.getUsername(), user.getUserRole());
         ResponseCookie authCookie = getRefreshTokenCookie(refreshjwt);
         servletResponse.addHeader("Set-Cookie", authCookie.toString());
         return ResponseEntity.ok().body(response);
     }
 
     private static Token saveUserGeneratedToken(String token, MyUser user, TokenType type) {
-        return Token.builder()
-                .user(user)
-                .token(token)
-                .tokenType(type)
-                .expired(false)
-                .revoked(false)
-                .build();
+        return Token.builder().user(user).token(token).tokenType(type).expired(false).revoked(false).build();
     }
 
     public ResponseEntity<AuthenticationResponse> refreshToken(String refreshToken) throws Exception {
@@ -81,42 +71,17 @@ public class AuthenticationService {
         expectedMap.put("role", userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
         String token = jwtTokenUtil.generateRefreshToken(expectedMap, username);
         MyUser myUser = userRepository.findByUsername(jwtTokenUtil.extractUsername(token)).orElseThrow();
-        revokeAllUserAccessTokens(myUser);
+        jwtTokenUtil.revokeUserJwtTokens(myUser);
         Token newToken = saveUserGeneratedToken(token, myUser, TokenType.BEARER);
         tokenRepository.save(newToken);
-        AuthenticationResponse response = new AuthenticationResponse(token, refreshToken, myUser.getUserRole());
+        AuthenticationResponse response = new AuthenticationResponse(token, refreshToken, myUser.getUsername(), myUser.getUserRole());
         return ResponseEntity.ok(response);
     }
 
-
     private static ResponseCookie getRefreshTokenCookie(Token newToken) {
-        return ResponseCookie.from("refreshToken", newToken.getToken())
-                .httpOnly(true)
+        return ResponseCookie.from("refreshToken", newToken.getToken()).httpOnly(true)
                 //TODO: Enable the secure parameter to get the cookie to be transmitted over https
 //                .secure(true)
-                .maxAge(86400)
-                .sameSite(Cookie.SameSite.NONE.attributeValue())
-                .domain("localhost")
-                .build();
-    }
-
-    private void revokeAllUserTokens(MyUser myUser){
-        var validUserTokens = tokenRepository.findAllValidTokensByUser(myUser.getId());
-        if (validUserTokens.isEmpty()) return;
-        validUserTokens.forEach(t -> {
-            t.setExpired(true);
-            t.setRevoked(true);
-        });
-        tokenRepository.saveAll(validUserTokens);
-    }
-
-    private void revokeAllUserAccessTokens(MyUser myUser){
-        var validUserAccessTokens = tokenRepository.findAllValidAccessTokensByUser(myUser.getId());
-        if (validUserAccessTokens.isEmpty()) return;
-        validUserAccessTokens.forEach(t -> {
-            t.setRevoked(true);
-            t.setExpired(true);
-        });
-        tokenRepository.saveAll(validUserAccessTokens);
+                .maxAge(86400).domain("localhost").build();
     }
 }

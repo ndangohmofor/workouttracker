@@ -34,12 +34,12 @@ public class AuthenticationController {
     AuthenticationService service;
 
     @PostMapping(path = "/login")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody @Valid AuthenticationRequest authenticationRequest) throws BadCredentialsException {
-       return ResponseEntity.status(200).body(service.authenticate(authenticationRequest));
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody @Valid AuthenticationRequest authenticationRequest, HttpServletResponse response) throws BadCredentialsException {
+       return ResponseEntity.status(200).body(service.authenticate(authenticationRequest, response));
     }
 
     @GetMapping(path = "/refreshtoken")
-    public ResponseEntity<?> refreshToken(HttpServletRequest request) throws Exception {
-        return ResponseEntity.ok(service.refreshToken(request));
+    public ResponseEntity<?> refreshToken(@CookieValue(name = "refreshToken") String refreshToken) throws Exception {
+        return ResponseEntity.ok(service.refreshToken(refreshToken));
     }
 }

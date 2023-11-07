@@ -31,7 +31,7 @@ public class LogoutService implements LogoutHandler {
 
         refreshTokenCookie.setMaxAge(0);
         refreshTokenCookie.setValue(null);
-
+        response.addCookie(refreshTokenCookie);
         jwtUtil.deleteAllUserTokens(refreshToken);
 
         ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString()).build();

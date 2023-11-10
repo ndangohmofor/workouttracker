@@ -16,3 +16,12 @@ CREATE TABLE ROLES (
     id SERIAL PRIMARY KEY,
     ROLE_NAME VARCHAR(15) NOT NULL UNIQUE,
 )
+
+CREATE TABLE USER_PROFILE (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(32) NOT NULL,
+    last_name VARCHAR(32) NOT NULL,
+    preferred_name VARCHAR(32),
+    goal VARCHAR(50) NOT NULL,
+    profile_photo VARCHAR(255)
+)

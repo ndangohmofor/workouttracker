@@ -32,6 +32,7 @@ public class MyUser {
             strategy = GenerationType.SEQUENCE,
             generator = "user_sequence"
     )
+    @JoinColumn(name = "user_id")
     private Long id;
     private String username;
     private String email;

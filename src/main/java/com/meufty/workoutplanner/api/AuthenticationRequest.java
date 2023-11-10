@@ -1,4 +1,4 @@
-package com.meufty.workoutplanner.model;
+package com.meufty.workoutplanner.api;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

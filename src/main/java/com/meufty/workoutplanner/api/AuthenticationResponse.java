@@ -1,6 +1,7 @@
-package com.meufty.workoutplanner.model;
+package com.meufty.workoutplanner.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.meufty.workoutplanner.model.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

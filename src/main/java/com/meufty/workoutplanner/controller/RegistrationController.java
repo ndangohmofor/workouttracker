@@ -26,7 +26,7 @@ public class RegistrationController {
 
     @GetMapping(path = "confirm")
     public ResponseEntity<String> confirm(@RequestParam("token") String token){
-        //TODO: As a future iteration, we can update the token confirmation such that when a user confirms their token, if this is successful, the username and password are extracted from the token and used to authenticate and login the user immediated
+        //TODO: As a future iteration, we can update the token confirmation such that when a user confirms their token, if this is successful, the username and password are extracted from the token and used to authenticate and login the user immediately
         //TODO: This means this method will need to return again an access token and a refresh token
         return ResponseEntity.ok(registrationService.confirmToken(token));
     }

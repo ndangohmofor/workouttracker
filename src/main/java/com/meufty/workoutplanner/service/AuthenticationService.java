@@ -1,5 +1,7 @@
 package com.meufty.workoutplanner.service;
 
+import com.meufty.workoutplanner.api.AuthenticationRequest;
+import com.meufty.workoutplanner.api.AuthenticationResponse;
 import com.meufty.workoutplanner.model.*;
 import com.meufty.workoutplanner.repository.TokenRepository;
 import com.meufty.workoutplanner.repository.UserRepository;

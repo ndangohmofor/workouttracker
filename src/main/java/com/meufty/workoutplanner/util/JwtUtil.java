@@ -1,18 +1,15 @@
 package com.meufty.workoutplanner.util;
 
 import com.meufty.workoutplanner.model.MyUser;
-import com.meufty.workoutplanner.model.MyUserDetails;
 import com.meufty.workoutplanner.model.Token;
 import com.meufty.workoutplanner.repository.TokenRepository;
 import com.meufty.workoutplanner.repository.UserRepository;
-import com.meufty.workoutplanner.service.LogoutService;
-import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +21,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class JwtUtil {
 
     @Value ("${spring.security.secret.jwt.secret.key}")
@@ -34,10 +32,7 @@ public class JwtUtil {
 
     @Value("${spring.security.secret.jwt.secret.refreshTokenExpirationInMs}")
     private long REFRESH_TOKEN_EXPIRY_MS;
-
-    @Autowired
     UserRepository userRepository;
-    @Autowired
     TokenRepository tokenRepository;
 
     public String extractUsername(String token){

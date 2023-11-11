@@ -23,5 +23,6 @@ public class UserProfile {
     private String lastName;
     private String preferredName;
     private String goal;
+    private UserRole role;
     private byte[] profilePhoto;
 }

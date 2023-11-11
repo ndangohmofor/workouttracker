@@ -1,2 +1,30 @@
-package com.meufty.workoutplanner.controller;public class UserProfileController {
+package com.meufty.workoutplanner.controller;
+
+import com.meufty.workoutplanner.api.UserProfileRequest;
+import com.meufty.workoutplanner.model.MyUser;
+import com.meufty.workoutplanner.service.UserProfileService;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+
+@RestController
+@AllArgsConstructor
+@CrossOrigin
+@Slf4j
+@RequestMapping(path = "/api/v1/profile")
+public class UserProfileController {
+    private UserProfileService userProfileService;
+
+    @GetMapping
+    private ResponseEntity<?> fetchUserProfile(HttpServletRequest request) {
+        try {
+            return ResponseEntity.ok(userProfileService.fetchUserProfile(request));
+        } catch (IllegalStateException ex) {
+            return ResponseEntity.status(410).body(ex.getMessage());
+        }
+    }
 }

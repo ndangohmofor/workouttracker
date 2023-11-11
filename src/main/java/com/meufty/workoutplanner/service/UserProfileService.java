@@ -3,7 +3,6 @@ package com.meufty.workoutplanner.service;
 
 import com.meufty.workoutplanner.api.UserProfileRequest;
 import com.meufty.workoutplanner.model.MyUser;
-import com.meufty.workoutplanner.model.MyUserDetails;
 import com.meufty.workoutplanner.model.UserProfile;
 import com.meufty.workoutplanner.model.UserRole;
 import com.meufty.workoutplanner.repository.UserProfileRepository;
@@ -13,8 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,8 +31,7 @@ public class UserProfileService {
         userProfileRepository.save(request);
     }
 
-    @Secured("ROLE_USER")   
-    @PostAuthorize("returnObject. == authentication.id")
+    @Secured("ROLE_USER")
     public ResponseEntity<?> fetchUserProfile(HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization");
         if (accessToken == null){
@@ -43,6 +39,16 @@ public class UserProfileService {
         }
         String username = jwtUtil.extractUsername(accessToken);
         MyUser user = userRepository.findByUsername(username).get();
+        return ResponseEntity.ok(getUserProfileByUser(user));
+    }
+
+    @Secured("ROLE_USER")
+    public ResponseEntity<?> fetchUserProfile(Long userId) {
+        MyUser user = userRepository.findById(userId).orElseThrow();
+        return ResponseEntity.ok(getUserProfileByUser(user));
+    }
+
+    private ResponseEntity<?> getUserProfileByUser(MyUser user) {
         UserProfile profile = userProfileRepository.findUserProfileByUserId(user.getId()).orElse(null);
         UserProfileRequest profileRequest = new UserProfileRequest();
         if (profile != null) {

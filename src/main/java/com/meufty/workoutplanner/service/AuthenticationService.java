@@ -2,12 +2,13 @@ package com.meufty.workoutplanner.service;
 
 import com.meufty.workoutplanner.api.AuthenticationRequest;
 import com.meufty.workoutplanner.api.AuthenticationResponse;
-import com.meufty.workoutplanner.model.*;
+import com.meufty.workoutplanner.model.MyUser;
+import com.meufty.workoutplanner.model.Token;
+import com.meufty.workoutplanner.model.TokenType;
 import com.meufty.workoutplanner.repository.TokenRepository;
 import com.meufty.workoutplanner.repository.UserRepository;
 import com.meufty.workoutplanner.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -29,17 +30,11 @@ public class AuthenticationService {
 
     @Value("${spring.security.secret.jwt.secret.createLoginTokenExpirationInMs}")
     private long LOGIN_EXPIRY_TIME_MS;
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    @Autowired
-    private MyUserDetailsService myUserDetailsService;
-    @Autowired
-    private JwtUtil jwtTokenUtil;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private TokenRepository tokenRepository;
-
+    AuthenticationManager authenticationManager;
+    MyUserDetailsService myUserDetailsService;
+    JwtUtil jwtTokenUtil;
+    UserRepository userRepository;
+    TokenRepository tokenRepository;
     public ResponseEntity<AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest, HttpServletResponse servletResponse) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));

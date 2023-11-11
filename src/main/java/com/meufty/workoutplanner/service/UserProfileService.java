@@ -12,6 +12,8 @@ import com.meufty.workoutplanner.util.JwtUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +34,8 @@ public class UserProfileService {
         userProfileRepository.save(request);
     }
 
+    @Secured("ROLE_USER")   
+    @PostAuthorize("returnObject. == authentication.id")
     public ResponseEntity<?> fetchUserProfile(HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization");
         if (accessToken == null){
@@ -52,7 +56,7 @@ public class UserProfileService {
         return ResponseEntity.ok(profileRequest);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @Secured("{'ROLE_ADMIN', 'ROLE_EMPLOYEE'}")
     public List<UserProfileRequest> fetchUserProfileByRole(UserRole role) {
         List<UserProfile> profiles = userProfileRepository.findUserProfileByUserRole(role).orElse(new ArrayList<>());
         List<UserProfileRequest> userProfiles = new ArrayList<>();

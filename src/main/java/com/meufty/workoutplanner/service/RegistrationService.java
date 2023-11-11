@@ -17,11 +17,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class RegistrationService {
 
-    private final MyUserDetailsService myUserDetailsService;
-    private final ConfirmationTokenService confirmationTokenService;
-    private final EmailValidator emailValidator;
-    private final EmailSender emailSender;
-    private final String REGISTRATION_CONFIRMATION = "Thanks for completing your registration. Please check your email and activate your account";
+    MyUserDetailsService myUserDetailsService;
+    ConfirmationTokenService confirmationTokenService;
+    EmailValidator emailValidator;
+    EmailSender emailSender;
 
     public String register(RegistrationRequest request) {
         boolean isValidEmail = emailValidator.test(request.getEmail());
@@ -33,7 +32,7 @@ public class RegistrationService {
             String token = myUserDetailsService.signUpUser(new MyUser(request.getUsername(), request.getEmail(), request.getPassword(), UserRole.ROLE_USER));
             emailSender.send(request.getEmail(), request.getFirstName(), token);
             log.info("Confirmation email sent successfully to " + request.getEmail());
-            return REGISTRATION_CONFIRMATION;
+            return "Thanks for completing your registration. Please check your email and activate your account";
         } catch (IllegalStateException e){
             return e.getMessage();
         }

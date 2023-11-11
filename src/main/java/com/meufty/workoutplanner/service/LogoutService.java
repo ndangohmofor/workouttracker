@@ -20,9 +20,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class LogoutService implements LogoutHandler {
 
-    public TokenRepository tokenRepository;
-    public JwtUtil jwtUtil;
-    public UserRepository userRepository;
+    TokenRepository tokenRepository;
+    JwtUtil jwtUtil;
+    UserRepository userRepository;
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         Cookie refreshTokenCookie = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals("refreshToken")).collect(Collectors.toList()).get(0);

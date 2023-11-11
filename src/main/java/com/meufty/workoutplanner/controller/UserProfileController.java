@@ -16,11 +16,11 @@ import javax.servlet.http.HttpServletRequest;
 @AllArgsConstructor
 @CrossOrigin
 @Slf4j
-@RequestMapping(path = "/api/v1/profile")
+@RequestMapping(path = "/api/v1/profiles")
 public class UserProfileController {
     private UserProfileService userProfileService;
 
-    @GetMapping
+    @GetMapping(name = "/profile")
     private ResponseEntity<?> fetchUserProfile(HttpServletRequest request) {
         try {
             return ResponseEntity.ok(userProfileService.fetchUserProfile(request));
@@ -29,7 +29,7 @@ public class UserProfileController {
         }
     }
 
-    @GetMapping()
+    @GetMapping(path = "/profile/${id}")
     @PreAuthorize("hasRole('ROLE_ADMIN, ROLE_EMPLOYEE')")
     private ResponseEntity<?> fetchUserProfile(@RequestParam("id") Long userId) {
         try {

@@ -2,13 +2,20 @@ package com.meufty.workoutplanner.service;
 
 
 import com.meufty.workoutplanner.api.UserProfileRequest;
+import com.meufty.workoutplanner.model.MyUser;
+import com.meufty.workoutplanner.model.MyUserDetails;
 import com.meufty.workoutplanner.model.UserProfile;
 import com.meufty.workoutplanner.model.UserRole;
 import com.meufty.workoutplanner.repository.UserProfileRepository;
+import com.meufty.workoutplanner.repository.UserRepository;
+import com.meufty.workoutplanner.util.JwtUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,14 +23,22 @@ import java.util.List;
 @AllArgsConstructor
 @Slf4j
 public class UserProfileService {
-    private UserProfileRepository userProfileRepository;
+    UserProfileRepository userProfileRepository;
+    JwtUtil jwtUtil;
+    UserRepository userRepository;
 
     public void createUserProfile(UserProfile request) {
         userProfileRepository.save(request);
     }
 
-    public UserProfileRequest fetchUserProfile(Long userId) {
-        UserProfile profile = userProfileRepository.findUserProfileByUserId(userId).orElse(null);
+    public ResponseEntity<?> fetchUserProfile(HttpServletRequest request) {
+        String accessToken = request.getHeader("Authorization");
+        if (accessToken == null){
+            return ResponseEntity.status(401).body(HttpServletResponse.SC_UNAUTHORIZED);
+        }
+        String username = jwtUtil.extractUsername(accessToken);
+        MyUser user = userRepository.findByUsername(username).get();
+        UserProfile profile = userProfileRepository.findUserProfileByUserId(user.getId()).orElse(null);
         UserProfileRequest profileRequest = new UserProfileRequest();
         if (profile != null) {
             profileRequest.setFirstName(profile.getFirstName());
@@ -33,7 +48,7 @@ public class UserProfileService {
             profileRequest.setProfilePhoto(profile.getProfilePhoto());
             profileRequest.setGoal(profile.getGoal());
         }
-        return profileRequest;
+        return ResponseEntity.ok(profileRequest);
     }
 
     public List<UserProfileRequest> fetchUserProfileByRole(UserRole role) {

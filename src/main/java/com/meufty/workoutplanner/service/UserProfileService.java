@@ -12,6 +12,7 @@ import com.meufty.workoutplanner.util.JwtUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,6 +52,7 @@ public class UserProfileService {
         return ResponseEntity.ok(profileRequest);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public List<UserProfileRequest> fetchUserProfileByRole(UserRole role) {
         List<UserProfile> profiles = userProfileRepository.findUserProfileByUserRole(role).orElse(new ArrayList<>());
         List<UserProfileRequest> userProfiles = new ArrayList<>();

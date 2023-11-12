@@ -17,7 +17,7 @@ public class UserProfile {
     @SequenceGenerator(name = "profile_sequence", sequenceName = "profile_sequence", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "profile_sequence")
     private Long id;
-    @JoinColumn(name = "id", nullable = false, table = "app_user")
+    @JoinColumn(name = "id", nullable = false, table = "app_user", unique = true)
     private Long userId;
     private String firstName;
     private String lastName;

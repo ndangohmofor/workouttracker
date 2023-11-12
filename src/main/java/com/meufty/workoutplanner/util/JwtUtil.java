@@ -8,6 +8,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,7 +33,9 @@ public class JwtUtil {
 
     @Value("${spring.security.secret.jwt.secret.refreshTokenExpirationInMs}")
     private long REFRESH_TOKEN_EXPIRY_MS;
+    @Autowired
     UserRepository userRepository;
+    @Autowired
     TokenRepository tokenRepository;
 
     public String extractUsername(String token){

@@ -23,5 +23,6 @@ CREATE TABLE USER_PROFILE (
     last_name VARCHAR(32) NOT NULL,
     preferred_name VARCHAR(32),
     goal VARCHAR(50) NOT NULL,
+    user_id INT UNIQUE,
     profile_photo VARCHAR(255)
 )

@@ -7,6 +7,7 @@ import com.meufty.workoutplanner.model.UserProfile;
 import com.meufty.workoutplanner.model.UserRole;
 import com.meufty.workoutplanner.repository.UserProfileRepository;
 import com.meufty.workoutplanner.repository.UserRepository;
+import com.meufty.workoutplanner.util.ExtractUserFromToken;
 import com.meufty.workoutplanner.util.JwtUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,20 +27,21 @@ public class UserProfileService {
     UserProfileRepository userProfileRepository;
     JwtUtil jwtUtil;
     UserRepository userRepository;
+    ExtractUserFromToken extractUserFromToken;
 
-    public void createUserProfile(UserProfile request) {
-        userProfileRepository.save(request);
+    public UserProfile createUserProfile(UserProfile request) {
+        return userProfileRepository.save(request);
     }
 
-    @Secured("ROLE_USER")
+    @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_USER"})
     public ResponseEntity<?> fetchUserProfile(HttpServletRequest request) {
-        String accessToken = request.getHeader("Authorization");
+        String accessToken = request.getHeader("Authorization").substring(7);
         if (accessToken == null){
             return ResponseEntity.status(401).body(HttpServletResponse.SC_UNAUTHORIZED);
         }
         String username = jwtUtil.extractUsername(accessToken);
         MyUser user = userRepository.findByUsername(username).get();
-        return ResponseEntity.ok(getUserProfileByUser(user));
+        return getUserProfileByUser(user);
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE"})
@@ -63,7 +65,7 @@ public class UserProfileService {
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE"})
-    public List<UserProfileRequest> fetchUserProfileByRole(UserRole role) {
+    public ResponseEntity<List<UserProfileRequest>> fetchUserProfileByRole(UserRole role) {
         List<UserProfile> profiles = userProfileRepository.findUserProfileByUserRole(role).orElse(new ArrayList<>());
         List<UserProfileRequest> userProfiles = new ArrayList<>();
         if (!profiles.isEmpty()) {
@@ -79,6 +81,30 @@ public class UserProfileService {
             });
         }
         ;
-        return userProfiles;
+        return ResponseEntity.ok(userProfiles);
     }
+
+    //TODO method to create one's own profile
+    @Secured({"ROLE_ADMIN", "ROLE_USER", "ROLE_EMPLOYEE"})
+    public UserProfile adduserProfile(HttpServletRequest httpServletRequest, UserProfileRequest request){
+
+        MyUser user = extractUserFromToken.extractUserFromToken(httpServletRequest).getBody();
+
+        UserProfile profile = new UserProfile();
+        profile.setFirstName(request.getFirstName());
+        profile.setLastName(request.getLastName());
+        profile.setPreferredName(request.getPreferredName());
+        profile.setGoal(request.getGoal());
+        assert user != null;
+        profile.setUserId(user.getId());
+        profile.setProfilePhoto(request.getProfilePhoto());
+
+        return createUserProfile(profile);
+    }
+
+    //TODO method to update one's own profile
+
+    //TODO method to create another user's profile
+
+    //TODO method to update another user's profile
 }

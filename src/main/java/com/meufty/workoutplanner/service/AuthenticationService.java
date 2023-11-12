@@ -9,6 +9,7 @@ import com.meufty.workoutplanner.repository.TokenRepository;
 import com.meufty.workoutplanner.repository.UserRepository;
 import com.meufty.workoutplanner.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -30,10 +31,15 @@ public class AuthenticationService {
 
     @Value("${spring.security.secret.jwt.secret.createLoginTokenExpirationInMs}")
     private long LOGIN_EXPIRY_TIME_MS;
+    @Autowired
     AuthenticationManager authenticationManager;
+    @Autowired
     MyUserDetailsService myUserDetailsService;
+    @Autowired
     JwtUtil jwtTokenUtil;
+    @Autowired
     UserRepository userRepository;
+    @Autowired
     TokenRepository tokenRepository;
     public ResponseEntity<AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest, HttpServletResponse servletResponse) {
         try {

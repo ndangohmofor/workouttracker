@@ -36,11 +36,8 @@ public class UserProfileService {
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_USER"})
     public ResponseEntity<?> fetchUserProfile(HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization").substring(7);
-        if (accessToken == null){
-            return ResponseEntity.status(401).body(HttpServletResponse.SC_UNAUTHORIZED);
-        }
         String username = jwtUtil.extractUsername(accessToken);
-        MyUser user = userRepository.findByUsername(username).get();
+        MyUser user = userRepository.findByUsername(username).orElseThrow();
         return getUserProfileByUser(user);
     }
 
@@ -86,7 +83,7 @@ public class UserProfileService {
 
     //TODO method to create one's own profile
     @Secured({"ROLE_ADMIN", "ROLE_USER", "ROLE_EMPLOYEE"})
-    public UserProfile adduserProfile(HttpServletRequest httpServletRequest, UserProfileRequest request){
+    public UserProfile addUserProfile(HttpServletRequest httpServletRequest, UserProfileRequest request){
 
         MyUser user = extractUserFromToken.extractUserFromToken(httpServletRequest).getBody();
 
@@ -103,6 +100,32 @@ public class UserProfileService {
     }
 
     //TODO method to update one's own profile
+    @Secured({"ROLE_ADMIN", "ROLE_USER", "ROLE_EMPLOYEE"})
+    public UserProfile updateUserProfile(HttpServletRequest httpServletRequest, UserProfileRequest request){
+
+        MyUser user = extractUserFromToken.extractUserFromToken(httpServletRequest).getBody();
+
+        UserProfile profile = new UserProfile();
+        if (!request.getFirstName().isEmpty()){
+            profile.setFirstName(request.getFirstName());
+        }
+        if (!request.getLastName().isEmpty()){
+            profile.setLastName(request.getLastName());
+        }
+        if (!request.getPreferredName().isEmpty()){
+            profile.setPreferredName(request.getPreferredName());
+        }
+        if (!request.getGoal().isEmpty()){
+            profile.setGoal(request.getGoal());
+        }
+        if(request.getProfilePhoto() != null){
+            profile.setProfilePhoto(request.getProfilePhoto());
+        }
+        assert user != null;
+        profile.setUserId(user.getId());
+
+        return createUserProfile(profile);
+    }
 
     //TODO method to create another user's profile
 

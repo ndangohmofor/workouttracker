@@ -83,7 +83,7 @@ public class UserProfileService {
 
     //TODO method to create one's own profile
     @Secured({"ROLE_ADMIN", "ROLE_USER", "ROLE_EMPLOYEE"})
-    public UserProfile addUserProfile(HttpServletRequest httpServletRequest, UserProfileRequest request){
+    public UserProfile addUserProfile(HttpServletRequest httpServletRequest, UserProfileRequest request) {
 
         MyUser user = extractUserFromToken.extractUserFromToken(httpServletRequest).getBody();
 
@@ -101,27 +101,37 @@ public class UserProfileService {
 
     //TODO method to update one's own profile
     @Secured({"ROLE_ADMIN", "ROLE_USER", "ROLE_EMPLOYEE"})
-    public UserProfile updateUserProfile(HttpServletRequest httpServletRequest, UserProfileRequest request){
+    public UserProfile updateUserProfile(HttpServletRequest httpServletRequest, UserProfileRequest request) {
 
         MyUser user = extractUserFromToken.extractUserFromToken(httpServletRequest).getBody();
-
-        UserProfile profile = new UserProfile();
-        if (!request.getFirstName().isEmpty()){
-            profile.setFirstName(request.getFirstName());
-        }
-        if (!request.getLastName().isEmpty()){
-            profile.setLastName(request.getLastName());
-        }
-        if (!request.getPreferredName().isEmpty()){
-            profile.setPreferredName(request.getPreferredName());
-        }
-        if (!request.getGoal().isEmpty()){
-            profile.setGoal(request.getGoal());
-        }
-        if(request.getProfilePhoto() != null){
-            profile.setProfilePhoto(request.getProfilePhoto());
-        }
         assert user != null;
+        UserProfile profile = new UserProfile();
+        if (!request.getFirstName().isEmpty()) {
+            profile.setFirstName(request.getFirstName());
+        } else {
+            profile.setFirstName(userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow().getFirstName());
+        }
+        if (!request.getLastName().isEmpty()) {
+            profile.setLastName(request.getLastName());
+        } else {
+            profile.setLastName(userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow().getLastName());
+        }
+        if (!request.getPreferredName().isEmpty()) {
+            profile.setPreferredName(request.getPreferredName());
+        } else {
+            profile.setPreferredName(userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow().getPreferredName());
+        }
+        if (!request.getGoal().isEmpty()) {
+            profile.setGoal(request.getGoal());
+        } else {
+            profile.setGoal(userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow().getGoal());
+        }
+        if (request.getProfilePhoto() != null) {
+            profile.setProfilePhoto(request.getProfilePhoto());
+        } else {
+            profile.setProfilePhoto(userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow().getProfilePhoto());
+        }
+
         profile.setUserId(user.getId());
 
         return createUserProfile(profile);

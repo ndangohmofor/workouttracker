@@ -134,7 +134,16 @@ public class UserProfileService {
 
         profile.setUserId(user.getId());
 
-        return createUserProfile(profile);
+         userProfileRepository.updateUserProfileByUserId(
+                profile.getUserId(),
+                profile.getFirstName(),
+                profile.getGoal(),
+                profile.getLastName(),
+                profile.getPreferredName(),
+                profile.getProfilePhoto(),
+                profile.getRole()
+        );
+         return userProfileRepository.findUserProfileByUserId(profile.getUserId()).orElseThrow();
     }
 
     //TODO method to create another user's profile

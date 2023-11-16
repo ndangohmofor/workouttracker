@@ -19,7 +19,7 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     Optional<List<UserProfile>> findUserProfileByUserRole(UserRole role);
 
     @Transactional
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
 UPDATE UserProfile U SET firstName = :firstName, goal = :goal, lastName = :lastName, preferredName = :preferredName, profilePhoto = :profilePhoto, role = :role WHERE userId = :userId  
 """)

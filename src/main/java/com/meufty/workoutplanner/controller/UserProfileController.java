@@ -61,14 +61,14 @@ public class UserProfileController {
 
     @PostMapping(path = "/updateprofile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_USER"})
-    public ResponseEntity<?> updateUserProfile(@RequestParam(value = "profilePhoto") MultipartFile file, @RequestParam(value = "firstName") String firstName, @RequestParam(value = "lastName") String lastName, @RequestParam(value = "preferredName") String preferredName, @RequestParam(value = "goal") String goal, @RequestParam(value = "userRole") UserRole role, HttpServletRequest httpServletRequest) throws IOException {
+    public ResponseEntity<?> updateUserProfile(@RequestParam(value = "profilePhoto", required = false) MultipartFile file, @RequestParam(value = "firstName", required = false) String firstName, @RequestParam(value = "lastName", required = false) String lastName, @RequestParam(value = "preferredName", required = false) String preferredName, @RequestParam(value = "goal", required = false) String goal, @RequestParam(value = "userRole", required = false) UserRole role, HttpServletRequest httpServletRequest) throws IOException {
         UserProfileRequest profileRequest = new UserProfileRequest();
-        profileRequest.setFirstName(firstName);
-        profileRequest.setLastName(lastName);
-        profileRequest.setPreferredName(preferredName);
-        profileRequest.setGoal(goal);
-        profileRequest.setUserRole(role);
-        profileRequest.setProfilePhoto(file.getBytes());
+        if (firstName != null) profileRequest.setFirstName(firstName);
+        if (lastName != null) profileRequest.setLastName(lastName);
+        if (preferredName != null) profileRequest.setPreferredName(preferredName);
+        if (goal != null) profileRequest.setGoal(goal);
+        if (role != null) profileRequest.setUserRole(role);
+        if (file != null) profileRequest.setProfilePhoto(file.getBytes());
         return ResponseEntity.ok(userProfileService.updateUserProfile(httpServletRequest, profileRequest));
     }
 }

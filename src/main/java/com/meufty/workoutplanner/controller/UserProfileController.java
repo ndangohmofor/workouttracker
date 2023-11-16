@@ -46,7 +46,7 @@ public class UserProfileController {
         }
     }
 
-    @PostMapping(path = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/createprofile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_USER"})
     public ResponseEntity<?> createUserProfile(@RequestParam(value = "profilePhoto") MultipartFile file, @RequestParam(value = "firstName") String firstName, @RequestParam(value = "lastName") String lastName, @RequestParam(value = "preferredName") String preferredName, @RequestParam(value = "goal") String goal, @RequestParam(value = "userRole") UserRole role, HttpServletRequest httpServletRequest) throws IOException {
         UserProfileRequest profileRequest = new UserProfileRequest();

@@ -106,22 +106,22 @@ public class UserProfileService {
         MyUser user = extractUserFromToken.extractUserFromToken(httpServletRequest).getBody();
         assert user != null;
         UserProfile profile = new UserProfile();
-        if (!request.getFirstName().isEmpty()) {
+        if (request.getFirstName() != null) {
             profile.setFirstName(request.getFirstName());
         } else {
             profile.setFirstName(userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow().getFirstName());
         }
-        if (!request.getLastName().isEmpty()) {
+        if (request.getLastName() != null) {
             profile.setLastName(request.getLastName());
         } else {
             profile.setLastName(userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow().getLastName());
         }
-        if (!request.getPreferredName().isEmpty()) {
+        if (request.getPreferredName() != null) {
             profile.setPreferredName(request.getPreferredName());
         } else {
             profile.setPreferredName(userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow().getPreferredName());
         }
-        if (!request.getGoal().isEmpty()) {
+        if (request.getGoal() != null) {
             profile.setGoal(request.getGoal());
         } else {
             profile.setGoal(userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow().getGoal());

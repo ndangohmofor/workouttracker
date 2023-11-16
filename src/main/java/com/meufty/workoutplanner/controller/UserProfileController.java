@@ -56,6 +56,6 @@ public class UserProfileController {
         profileRequest.setGoal(goal);
         profileRequest.setUserRole(role);
         profileRequest.setProfilePhoto(file.getBytes());
-        return ResponseEntity.ok(userProfileService.adduserProfile(httpServletRequest, profileRequest));
+        return ResponseEntity.ok(userProfileService.addUserProfile(httpServletRequest, profileRequest));
     }
 }

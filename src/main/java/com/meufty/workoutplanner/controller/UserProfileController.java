@@ -58,4 +58,17 @@ public class UserProfileController {
         profileRequest.setProfilePhoto(file.getBytes());
         return ResponseEntity.ok(userProfileService.addUserProfile(httpServletRequest, profileRequest));
     }
+
+    @PostMapping(path = "/updateprofile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_USER"})
+    public ResponseEntity<?> updateUserProfile(@RequestParam(value = "profilePhoto") MultipartFile file, @RequestParam(value = "firstName") String firstName, @RequestParam(value = "lastName") String lastName, @RequestParam(value = "preferredName") String preferredName, @RequestParam(value = "goal") String goal, @RequestParam(value = "userRole") UserRole role, HttpServletRequest httpServletRequest) throws IOException {
+        UserProfileRequest profileRequest = new UserProfileRequest();
+        profileRequest.setFirstName(firstName);
+        profileRequest.setLastName(lastName);
+        profileRequest.setPreferredName(preferredName);
+        profileRequest.setGoal(goal);
+        profileRequest.setUserRole(role);
+        profileRequest.setProfilePhoto(file.getBytes());
+        return ResponseEntity.ok(userProfileService.updateUserProfile(httpServletRequest, profileRequest));
+    }
 }

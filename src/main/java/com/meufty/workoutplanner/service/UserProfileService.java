@@ -143,7 +143,7 @@ public class UserProfileService {
                 profile.getProfilePhoto(),
                 profile.getRole()
         );
-         return userProfileRepository.findUserProfileByUserId(profile.getUserId()).orElseThrow();
+         return userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow();
     }
 
     //TODO method to create another user's profile

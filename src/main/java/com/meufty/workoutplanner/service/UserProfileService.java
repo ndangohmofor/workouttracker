@@ -86,16 +86,7 @@ public class UserProfileService {
 
         MyUser user = extractUserFromToken.extractUserFromToken(httpServletRequest).getBody();
 
-        UserProfile profile = new UserProfile();
-        profile.setFirstName(request.getFirstName());
-        profile.setLastName(request.getLastName());
-        profile.setPreferredName(request.getPreferredName());
-        profile.setGoal(request.getGoal());
-        assert user != null;
-        profile.setUserId(user.getId());
-        profile.setProfilePhoto(request.getProfilePhoto());
-
-        return createUserProfile(profile);
+        return createUserProfileFromRequest(request, user);
     }
 
     //TODO method to update one's own profile
@@ -113,6 +104,10 @@ public class UserProfileService {
 
         MyUser user = userRepository.findById(userId).orElseThrow();;
 
+        return createUserProfileFromRequest(request, user);
+    }
+
+    private UserProfile createUserProfileFromRequest(UserProfileRequest request, MyUser user) {
         UserProfile profile = new UserProfile();
         profile.setFirstName(request.getFirstName());
         profile.setLastName(request.getLastName());

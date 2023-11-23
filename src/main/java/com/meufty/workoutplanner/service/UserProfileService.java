@@ -147,6 +147,50 @@ public class UserProfileService {
     }
 
     //TODO method to create another user's profile
+    @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE"})
+    public UserProfile updateUserProfile(UserProfileRequest request, Long userId) {
+
+        MyUser user = userRepository.findById(userId).orElseThrow();
+        UserProfile profile = new UserProfile();
+        if (request.getFirstName() != null) {
+            profile.setFirstName(request.getFirstName());
+        } else {
+            profile.setFirstName(userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow().getFirstName());
+        }
+        if (request.getLastName() != null) {
+            profile.setLastName(request.getLastName());
+        } else {
+            profile.setLastName(userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow().getLastName());
+        }
+        if (request.getPreferredName() != null) {
+            profile.setPreferredName(request.getPreferredName());
+        } else {
+            profile.setPreferredName(userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow().getPreferredName());
+        }
+        if (request.getGoal() != null) {
+            profile.setGoal(request.getGoal());
+        } else {
+            profile.setGoal(userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow().getGoal());
+        }
+        if (request.getProfilePhoto() != null) {
+            profile.setProfilePhoto(request.getProfilePhoto());
+        } else {
+            profile.setProfilePhoto(userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow().getProfilePhoto());
+        }
+
+        profile.setUserId(user.getId());
+
+        userProfileRepository.updateUserProfileByUserId(
+                profile.getUserId(),
+                profile.getFirstName(),
+                profile.getGoal(),
+                profile.getLastName(),
+                profile.getPreferredName(),
+                profile.getProfilePhoto(),
+                profile.getRole()
+        );
+        return userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow();
+    }
 
     //TODO method to update another user's profile
 }

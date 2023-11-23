@@ -104,10 +104,26 @@ public class UserProfileService {
 
         MyUser user = extractUserFromToken.extractUserFromToken(httpServletRequest).getBody();
         assert user != null;
-        return createUserProfileFromRequest(request, user);
+        return updateUserProfileFromRequest(request, user);
     }
 
     //TODO method to create another user's profile
+    @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE"})
+    public UserProfile addUserProfile(UserProfileRequest request, Long userId) {
+
+        MyUser user = userRepository.findById(userId).orElseThrow();;
+
+        UserProfile profile = new UserProfile();
+        profile.setFirstName(request.getFirstName());
+        profile.setLastName(request.getLastName());
+        profile.setPreferredName(request.getPreferredName());
+        profile.setGoal(request.getGoal());
+        assert user != null;
+        profile.setUserId(user.getId());
+        profile.setProfilePhoto(request.getProfilePhoto());
+
+        return createUserProfile(profile);
+    }
 
 
     //TODO method to update another user's profile
@@ -115,10 +131,10 @@ public class UserProfileService {
     public UserProfile updateUserProfile(UserProfileRequest request, Long userId) {
 
         MyUser user = userRepository.findById(userId).orElseThrow();
-        return createUserProfileFromRequest(request, user);
+        return updateUserProfileFromRequest(request, user);
     }
 
-    private UserProfile createUserProfileFromRequest(UserProfileRequest request, MyUser user) {
+    private UserProfile updateUserProfileFromRequest(UserProfileRequest request, MyUser user) {
         UserProfile profile = new UserProfile();
         if (request.getFirstName() != null) {
             profile.setFirstName(request.getFirstName());

@@ -53,6 +53,7 @@ public class UserProfileService {
             profileRequest.setFirstName(profile.getFirstName());
             profileRequest.setLastName(profile.getLastName());
             profileRequest.setPreferredName(profile.getPreferredName());
+            profileRequest.setUsername(profile.getUsername());
             profileRequest.setUserRole(profile.getRole());
             profileRequest.setProfilePhoto(profile.getProfilePhoto());
             profileRequest.setGoal(profile.getGoal());
@@ -70,6 +71,7 @@ public class UserProfileService {
                 userProfile.setFirstName(p.getFirstName());
                 userProfile.setLastName(p.getLastName());
                 userProfile.setPreferredName(p.getPreferredName());
+                userProfile.setUsername(p.getUsername());
                 userProfile.setGoal(p.getGoal());
                 userProfile.setProfilePhoto(p.getProfilePhoto());
                 userProfile.setUserRole(p.getRole());
@@ -112,6 +114,7 @@ public class UserProfileService {
         profile.setFirstName(request.getFirstName());
         profile.setLastName(request.getLastName());
         profile.setPreferredName(request.getPreferredName());
+        profile.setUsername(request.getUsername());
         profile.setGoal(request.getGoal());
         assert user != null;
         profile.setUserId(user.getId());
@@ -146,6 +149,11 @@ public class UserProfileService {
         } else {
             profile.setPreferredName(userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow().getPreferredName());
         }
+        if (request.getUsername() != null) {
+            profile.setUsername(request.getUsername());
+        } else {
+            profile.setUsername(userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow().getUsername());
+        }
         if (request.getGoal() != null) {
             profile.setGoal(request.getGoal());
         } else {
@@ -165,6 +173,7 @@ public class UserProfileService {
                 profile.getGoal(),
                 profile.getLastName(),
                 profile.getPreferredName(),
+                profile.getUsername(),
                 profile.getProfilePhoto(),
                 profile.getRole()
         );

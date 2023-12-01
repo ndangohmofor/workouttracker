@@ -1,8 +1,10 @@
 package com.meufty.workoutplanner.service;
 
 import com.meufty.workoutplanner.api.RegistrationRequest;
+import com.meufty.workoutplanner.api.UserProfileRequest;
 import com.meufty.workoutplanner.email.EmailSender;
 import com.meufty.workoutplanner.model.MyUser;
+import com.meufty.workoutplanner.model.UserProfile;
 import com.meufty.workoutplanner.model.UserRole;
 import com.meufty.workoutplanner.token.ConfirmationToken;
 import lombok.AllArgsConstructor;
@@ -21,6 +23,7 @@ public class RegistrationService {
     ConfirmationTokenService confirmationTokenService;
     EmailValidator emailValidator;
     EmailSender emailSender;
+    UserProfileService userProfileService;
 
     public String register(RegistrationRequest request) {
         boolean isValidEmail = emailValidator.test(request.getEmail());
@@ -32,6 +35,17 @@ public class RegistrationService {
             String token = myUserDetailsService.signUpUser(new MyUser(request.getUsername(), request.getEmail(), request.getPassword(), UserRole.ROLE_USER));
             emailSender.send(request.getEmail(), request.getFirstName(), token);
             log.info("Confirmation email sent successfully to " + request.getEmail());
+            //TODO: As part of the registration process, user the information from registration request to create a user profile
+            UserProfile profileRequest = new UserProfile();
+            profileRequest.setFirstName(request.getFirstName());
+            profileRequest.setLastName(request.getLastName());
+            profileRequest.setUsername(request.getUsername());
+            profileRequest.setRole(UserRole.ROLE_USER);
+            profileRequest.setUserId(myUserDetailsService.getUserId(request.getUsername()));
+            //Create a default profile picture to use for the user
+            profileRequest.setProfilePhoto(new byte[0]);
+            profileRequest.setGoal("Goal pending");
+            userProfileService.createUserProfile(profileRequest);
             return "Thanks for completing your registration. Please check your email and activate your account";
         } catch (IllegalStateException e){
             return e.getMessage();

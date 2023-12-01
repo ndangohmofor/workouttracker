@@ -79,4 +79,8 @@ public class MyUserDetailsService implements UserDetailsService {
         log.info(username + " enabled");
         return userRepository.enableUser(username);
     }
+
+    public Long getUserId(String username) {
+        return userRepository.findByUsername(username).orElseThrow().getId();
+    }
 }

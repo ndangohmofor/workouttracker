@@ -85,6 +85,7 @@ public class AuthenticationService {
         return ResponseCookie.from("refreshToken", newToken.getToken()).httpOnly(true)
                 //TODO: Enable the secure parameter to get the cookie to be transmitted over https
 //                .secure(true)
+                .sameSite("None")
                 .maxAge(86400).domain("localhost").build();
     }
 }

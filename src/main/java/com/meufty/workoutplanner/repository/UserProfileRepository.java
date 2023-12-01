@@ -21,7 +21,7 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     @Transactional
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
-UPDATE UserProfile U SET firstName = :firstName, goal = :goal, lastName = :lastName, preferredName = :preferredName, profilePhoto = :profilePhoto, role = :role WHERE userId = :userId  
+UPDATE UserProfile U SET firstName = :firstName, goal = :goal, lastName = :lastName, preferredName = :preferredName, username = :username, profilePhoto = :profilePhoto, role = :role WHERE userId = :userId  
 """)
     int updateUserProfileByUserId(
             Long userId,
@@ -29,7 +29,8 @@ UPDATE UserProfile U SET firstName = :firstName, goal = :goal, lastName = :lastN
             String goal,
             String lastName,
             String preferredName,
-            String username, byte[] profilePhoto,
+            String username,
+            byte[] profilePhoto,
             UserRole role
     );
 }

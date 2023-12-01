@@ -29,7 +29,7 @@ UPDATE UserProfile U SET firstName = :firstName, goal = :goal, lastName = :lastN
             String goal,
             String lastName,
             String preferredName,
-            byte[] profilePhoto,
+            String username, byte[] profilePhoto,
             UserRole role
     );
 }

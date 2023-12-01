@@ -48,26 +48,28 @@ public class UserProfileController {
 
     @PostMapping(path = "/createprofile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_USER"})
-    public ResponseEntity<?> createUserProfile(@RequestParam(value = "profilePhoto") MultipartFile file, @RequestParam(value = "firstName") String firstName, @RequestParam(value = "lastName") String lastName, @RequestParam(value = "preferredName") String preferredName, @RequestParam(value = "goal") String goal, @RequestParam(value = "userRole") UserRole role, HttpServletRequest httpServletRequest) throws IOException {
+    public ResponseEntity<?> createUserProfile(@RequestParam(value = "profilePhoto") MultipartFile file, @RequestParam(value = "firstName") String firstName, @RequestParam(value = "lastName") String lastName, @RequestParam(value = "preferredName") String preferredName, @RequestParam(value = "goal") String goal, @RequestParam(value = "username") String username, @RequestParam(value = "userRole") UserRole role, HttpServletRequest httpServletRequest) throws IOException {
         UserProfileRequest profileRequest = new UserProfileRequest();
         profileRequest.setFirstName(firstName);
         profileRequest.setLastName(lastName);
         profileRequest.setPreferredName(preferredName);
         profileRequest.setGoal(goal);
         profileRequest.setUserRole(role);
+        profileRequest.setUsername(username);
         profileRequest.setProfilePhoto(file.getBytes());
         return ResponseEntity.ok(userProfileService.addUserProfile(httpServletRequest, profileRequest));
     }
 
     @PostMapping(path = "/updateprofile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_USER"})
-    public ResponseEntity<?> updateUserProfile(@RequestParam(value = "profilePhoto", required = false) MultipartFile file, @RequestParam(value = "firstName", required = false) String firstName, @RequestParam(value = "lastName", required = false) String lastName, @RequestParam(value = "preferredName", required = false) String preferredName, @RequestParam(value = "goal", required = false) String goal, @RequestParam(value = "userRole", required = false) UserRole role, HttpServletRequest httpServletRequest) throws IOException {
+    public ResponseEntity<?> updateUserProfile(@RequestParam(value = "profilePhoto", required = false) MultipartFile file, @RequestParam(value = "firstName", required = false) String firstName, @RequestParam(value = "lastName", required = false) String lastName, @RequestParam(value = "preferredName", required = false) String preferredName, @RequestParam(value = "username", required = false) String username, @RequestParam(value = "goal", required = false) String goal, @RequestParam(value = "userRole", required = false) UserRole role, HttpServletRequest httpServletRequest) throws IOException {
         UserProfileRequest profileRequest = new UserProfileRequest();
         if (firstName != null) profileRequest.setFirstName(firstName);
         if (lastName != null) profileRequest.setLastName(lastName);
         if (preferredName != null) profileRequest.setPreferredName(preferredName);
         if (goal != null) profileRequest.setGoal(goal);
         if (role != null) profileRequest.setUserRole(role);
+        if (username != null) profileRequest.setUsername(username);
         if (file != null) profileRequest.setProfilePhoto(file.getBytes());
         return ResponseEntity.ok(userProfileService.updateUserProfile(httpServletRequest, profileRequest));
     }

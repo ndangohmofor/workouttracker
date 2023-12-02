@@ -44,7 +44,7 @@ public class RegistrationService {
             profileRequest.setUserId(myUserDetailsService.getUserId(request.getUsername()));
             //Create a default profile picture to use for the user
             profileRequest.setProfilePhoto(new byte[0]);
-            profileRequest.setGoal("Goal pending");
+            profileRequest.setGoal(" ");
             userProfileService.createUserProfile(profileRequest);
             return "Thanks for completing your registration. Please check your email and activate your account";
         } catch (IllegalStateException e){

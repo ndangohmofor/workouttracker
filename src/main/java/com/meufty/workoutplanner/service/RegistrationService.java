@@ -12,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -24,6 +27,16 @@ public class RegistrationService {
     EmailValidator emailValidator;
     EmailSender emailSender;
     UserProfileService userProfileService;
+
+    private static final byte[] defaultProfilePhoto;
+
+    static {
+        try {
+            defaultProfilePhoto = Files.readAllBytes(Paths.get("src/main/resources/static/images/default-profile-photo.jpg"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public String register(RegistrationRequest request) {
         boolean isValidEmail = emailValidator.test(request.getEmail());
@@ -43,7 +56,7 @@ public class RegistrationService {
             profileRequest.setRole(UserRole.ROLE_USER);
             profileRequest.setUserId(myUserDetailsService.getUserId(request.getUsername()));
             //Create a default profile picture to use for the user
-            profileRequest.setProfilePhoto(new byte[0]);
+            profileRequest.setProfilePhoto(defaultProfilePhoto);
             profileRequest.setGoal(" ");
             userProfileService.createUserProfile(profileRequest);
             return "Thanks for completing your registration. Please check your email and activate your account";

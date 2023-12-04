@@ -97,6 +97,7 @@ public class SecurityConfig {
                 .antMatchers("/api/v*/registration/**", "/api/v*/login**", "/api/v*/refreshtoken**", "/api/public/home", "/api/public/**")
                 .permitAll()
                 .antMatchers("/api/v*/admin").hasRole("ADMIN")
+                .antMatchers("/api/v*/profile").hasAnyRole("ADMIN", "USER", "EMPLOYEE")
                 .anyRequest()
                 .authenticated()
                 .and()

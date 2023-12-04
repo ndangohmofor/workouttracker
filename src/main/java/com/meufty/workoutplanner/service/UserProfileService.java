@@ -50,7 +50,7 @@ public class UserProfileService {
         return userProfileRepository.findUserProfileByUsername(username).orElseThrow();
     }
 
-    private ResponseEntity<?> getUserProfileByUser(MyUser user) {
+    private UserProfileRequest getUserProfileByUser(MyUser user) {
         UserProfile profile = userProfileRepository.findUserProfileByUserId(user.getId()).orElse(null);
         UserProfileRequest profileRequest = new UserProfileRequest();
         if (profile != null) {
@@ -62,11 +62,11 @@ public class UserProfileService {
             profileRequest.setProfilePhoto(profile.getProfilePhoto());
             profileRequest.setGoal(profile.getGoal());
         }
-        return ResponseEntity.ok(profileRequest);
+        return (profileRequest);
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE"})
-    public ResponseEntity<List<UserProfileRequest>> fetchUserProfileByRole(UserRole role) {
+    public List<UserProfileRequest> fetchUserProfileByRole(UserRole role) {
         List<UserProfile> profiles = userProfileRepository.findUserProfileByUserRole(role).orElse(new ArrayList<>());
         List<UserProfileRequest> userProfiles = new ArrayList<>();
         if (!profiles.isEmpty()) {
@@ -83,7 +83,7 @@ public class UserProfileService {
             });
         }
         ;
-        return ResponseEntity.ok(userProfiles);
+        return userProfiles;
     }
 
     //TODO method to create one's own profile

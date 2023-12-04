@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +34,7 @@ public class UserProfileService {
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_USER"})
-    public ResponseEntity<?> fetchUserProfile(HttpServletRequest request) {
+    public UserProfileRequest fetchUserProfile(HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization").substring(7);
         String username = jwtUtil.extractUsername(accessToken);
         MyUser user = userRepository.findByUsername(username).orElseThrow();

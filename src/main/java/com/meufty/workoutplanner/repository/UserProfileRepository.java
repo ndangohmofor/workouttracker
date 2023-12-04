@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface UserProfileRepository extends JpaRepository<UserProfile, Long> {
 
     Optional<UserProfile> findUserProfileByUserId(Long userId);
+    Optional<UserProfile> findUserProfileByUsername(String username);
     @Query("""
             SELECT id, userId, firstName, lastName, preferredName, goal, role, profilePhoto FROM UserProfile U WHERE U.role = :role
             """)

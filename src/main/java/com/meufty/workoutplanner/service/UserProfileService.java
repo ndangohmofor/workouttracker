@@ -41,15 +41,13 @@ public class UserProfileService {
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE"})
-    public ResponseEntity<?> fetchUserProfile(Long userId) {
-        MyUser user = userRepository.findById(userId).orElseThrow();
-        return ResponseEntity.ok(getUserProfileByUser(user));
+    public UserProfile fetchUserProfile(Long userId) {
+        return userProfileRepository.findUserProfileByUserId(userId).orElseThrow();
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE"})
-    public ResponseEntity<?> fetchUserProfile(String username) {
-        MyUser user = userRepository.findByUsername(username).orElseThrow();
-        return ResponseEntity.ok(getUserProfileByUser(user));
+    public UserProfile fetchUserProfile(String username) {
+        return userProfileRepository.findUserProfileByUsername(username).orElseThrow();
     }
 
     private ResponseEntity<?> getUserProfileByUser(MyUser user) {

@@ -46,6 +46,12 @@ public class UserProfileService {
         return ResponseEntity.ok(getUserProfileByUser(user));
     }
 
+    @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE"})
+    public ResponseEntity<?> fetchUserProfile(String username) {
+        MyUser user = userRepository.findByUsername(username).orElseThrow();
+        return ResponseEntity.ok(getUserProfileByUser(user));
+    }
+
     private ResponseEntity<?> getUserProfileByUser(MyUser user) {
         UserProfile profile = userProfileRepository.findUserProfileByUserId(user.getId()).orElse(null);
         UserProfileRequest profileRequest = new UserProfileRequest();

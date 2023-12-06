@@ -41,7 +41,7 @@ public class AuthenticationService {
     UserRepository userRepository;
     @Autowired
     TokenRepository tokenRepository;
-    public ResponseEntity<AuthenticationResponse> authenticate(AuthenticationRequest authenticationRequest, HttpServletResponse servletResponse) {
+    public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest, HttpServletResponse servletResponse) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
         } catch (BadCredentialsException e) {
@@ -60,14 +60,14 @@ public class AuthenticationService {
         AuthenticationResponse response = new AuthenticationResponse(jwt, refreshToken, user.getUsername(), user.getUserRole());
         ResponseCookie authCookie = getRefreshTokenCookie(refreshjwt);
         servletResponse.addHeader("Set-Cookie", authCookie.toString());
-        return ResponseEntity.ok().body(response);
+        return (response);
     }
 
     private static Token saveUserGeneratedToken(String token, MyUser user, TokenType type) {
         return Token.builder().user(user).token(token).tokenType(type).expired(false).revoked(false).build();
     }
 
-    public ResponseEntity<AuthenticationResponse> refreshToken(String refreshToken) throws Exception {
+    public AuthenticationResponse refreshToken(String refreshToken) throws Exception {
         String username = jwtTokenUtil.extractUsername(refreshToken);
         UserDetails userDetails = myUserDetailsService.loadUserByUsername(username);
         HashMap<String, Object> expectedMap = new HashMap<>();
@@ -78,14 +78,14 @@ public class AuthenticationService {
         Token newToken = saveUserGeneratedToken(token, myUser, TokenType.BEARER);
         tokenRepository.save(newToken);
         AuthenticationResponse response = new AuthenticationResponse(token, refreshToken, myUser.getUsername(), myUser.getUserRole());
-        return ResponseEntity.ok(response);
+        return response;
     }
 
     private static ResponseCookie getRefreshTokenCookie(Token newToken) {
         return ResponseCookie.from("refreshToken", newToken.getToken()).httpOnly(true)
                 //TODO: Enable the secure parameter to get the cookie to be transmitted over https
 //                .secure(true)
-                .sameSite("None")
+//                .sameSite("None")
                 .maxAge(86400).domain("localhost").build();
     }
 }

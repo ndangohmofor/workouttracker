@@ -76,7 +76,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private void allowForRefreshToken(ExpiredJwtException ex, HttpServletRequest request) {
         //Create a UsernamePasswordAuthenticationToken with null values
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(null, null, null);
-        //After setting the Authentication in the context, we specify that the current user is authenticated so it passes the Sprint security configs successfully
+        //After setting the Authentication in the context, we specify that the current user is authenticated so it passes the Spring security configs successfully
         SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
         //Set the claims so that in controller we will be using it to create a new JWT
         request.setAttribute("claims", ex.getClaims());

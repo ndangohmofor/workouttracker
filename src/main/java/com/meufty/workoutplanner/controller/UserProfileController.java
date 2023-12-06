@@ -1,11 +1,18 @@
 package com.meufty.workoutplanner.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import com.meufty.workoutplanner.api.UserProfileRequest;
+import com.meufty.workoutplanner.model.UserProfile;
 import com.meufty.workoutplanner.model.UserRole;
 import com.meufty.workoutplanner.service.UserProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -46,7 +53,7 @@ public class UserProfileController {
         }
     }
 
-    @PostMapping(path = "/createprofile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/profile/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_USER"})
     public ResponseEntity<?> createUserProfile(@RequestParam(value = "profilePhoto") MultipartFile file, @RequestParam(value = "firstName") String firstName, @RequestParam(value = "lastName") String lastName, @RequestParam(value = "preferredName") String preferredName, @RequestParam(value = "goal") String goal, @RequestParam(value = "username") String username, @RequestParam(value = "userRole") UserRole role, HttpServletRequest httpServletRequest) throws IOException {
         UserProfileRequest profileRequest = new UserProfileRequest();
@@ -60,7 +67,7 @@ public class UserProfileController {
         return ResponseEntity.ok(userProfileService.addUserProfile(httpServletRequest, profileRequest));
     }
 
-    @PostMapping(path = "/updateprofile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/profile/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_USER"})
     public ResponseEntity<?> updateUserProfile(@RequestParam(value = "profilePhoto", required = false) MultipartFile file, @RequestParam(value = "firstName", required = false) String firstName, @RequestParam(value = "lastName", required = false) String lastName, @RequestParam(value = "preferredName", required = false) String preferredName, @RequestParam(value = "username", required = false) String username, @RequestParam(value = "goal", required = false) String goal, @RequestParam(value = "userRole", required = false) UserRole role, HttpServletRequest httpServletRequest) throws IOException {
         UserProfileRequest profileRequest = new UserProfileRequest();
@@ -73,4 +80,27 @@ public class UserProfileController {
         if (file != null) profileRequest.setProfilePhoto(file.getBytes());
         return ResponseEntity.ok(userProfileService.updateUserProfile(httpServletRequest, profileRequest));
     }
+
+    @PatchMapping(path = "/profile/{username}/update", consumes = "application/json-patch+json")
+    @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_USER"})
+    public ResponseEntity<?> updateUserProfile(@PathVariable String username, @RequestBody JsonPatch patch) {
+        try {
+            UserProfile profile = userProfileService.fetchUserProfile(username);
+            UserProfile patchedProfile = applyPatchToProfile(patch, profile);
+            userProfileService.updateUserProfile(patchedProfile);
+            return ResponseEntity.ok(patchedProfile);
+        } catch (JsonPatchException | JsonProcessingException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (IllegalStateException ex) {
+            return ResponseEntity.status(410).body(ex.getMessage());
+        }
+    }
+
+    private UserProfile applyPatchToProfile(JsonPatch patch, UserProfile targetProfile) throws JsonPatchException, JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode patched = patch.apply(objectMapper.convertValue(targetProfile, JsonNode.class));
+        return objectMapper.treeToValue(patched, UserProfile.class);
+
+    }
+
 }

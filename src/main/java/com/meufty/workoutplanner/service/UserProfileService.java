@@ -184,4 +184,8 @@ public class UserProfileService {
         );
         return userProfileRepository.findUserProfileByUserId(user.getId()).orElseThrow();
     }
+
+    public UserProfile updateUserProfile(UserProfile updatedProfile) {
+        return userProfileRepository.save(updatedProfile);
+    }
 }

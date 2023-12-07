@@ -21,6 +21,7 @@ public class UserProfile {
     private Long userId;
     private String firstName;
     private String lastName;
+    private String middleName;
     private String preferredName;
     private String username;
     private String goal;

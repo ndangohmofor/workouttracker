@@ -9,8 +9,10 @@ import com.meufty.workoutplanner.api.UserProfileRequest;
 import com.meufty.workoutplanner.model.UserProfile;
 import com.meufty.workoutplanner.model.UserRole;
 import com.meufty.workoutplanner.service.UserProfileService;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,11 +28,9 @@ import java.io.IOException;
 @RestController
 @CrossOrigin
 @Slf4j
-@RequiredArgsConstructor
+@AllArgsConstructor
 @RequestMapping(path = "/api/v1/profiles")
 public class UserProfileController {
-
-    @Autowired
     UserProfileService userProfileService;
 
     @GetMapping(path = "/profile")
@@ -83,24 +83,7 @@ public class UserProfileController {
 
     @PatchMapping(path = "/profile/{username}/update", consumes = "application/json-patch+json")
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_USER"})
-    public ResponseEntity<?> updateUserProfile(@PathVariable String username, @RequestBody JsonPatch patch) {
-        try {
-            UserProfile profile = userProfileService.fetchUserProfile(username);
-            UserProfile patchedProfile = applyPatchToProfile(patch, profile);
-            userProfileService.updateUserProfile(patchedProfile);
-            return ResponseEntity.ok(patchedProfile);
-        } catch (JsonPatchException | JsonProcessingException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        } catch (IllegalStateException ex) {
-            return ResponseEntity.status(410).body(ex.getMessage());
-        }
+    public UserProfile updateUserProfile(@PathVariable String username, @RequestBody JsonPatch patch) throws JsonPatchException, JsonProcessingException {
+        return userProfileService.patchUserProfile(username, patch);
     }
-
-    private UserProfile applyPatchToProfile(JsonPatch patch, UserProfile targetProfile) throws JsonPatchException, JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode patched = patch.apply(objectMapper.convertValue(targetProfile, JsonNode.class));
-        return objectMapper.treeToValue(patched, UserProfile.class);
-
-    }
-
 }

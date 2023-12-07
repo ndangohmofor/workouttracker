@@ -1,6 +1,12 @@
 package com.meufty.workoutplanner.service;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import com.meufty.workoutplanner.api.UserProfileRequest;
 import com.meufty.workoutplanner.model.MyUser;
 import com.meufty.workoutplanner.model.UserProfile;
@@ -9,11 +15,10 @@ import com.meufty.workoutplanner.repository.UserProfileRepository;
 import com.meufty.workoutplanner.repository.UserRepository;
 import com.meufty.workoutplanner.util.ExtractUserFromToken;
 import com.meufty.workoutplanner.util.JwtUtil;
+import com.meufty.workoutplanner.util.UserProfileDeserializer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +33,7 @@ public class UserProfileService {
     JwtUtil jwtUtil;
     UserRepository userRepository;
     ExtractUserFromToken extractUserFromToken;
+    ObjectMapper objectMapper;
 
     public UserProfile createUserProfile(UserProfile request) {
         return userProfileRepository.save(request);
@@ -41,12 +47,12 @@ public class UserProfileService {
         return getUserProfileByUser(user);
     }
 
-    @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE"})
+    @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_USER"})
     public UserProfile fetchUserProfile(Long userId) {
         return userProfileRepository.findUserProfileByUserId(userId).orElseThrow();
     }
 
-    @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE"})
+    @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_USER"})
     public UserProfile fetchUserProfile(String username) {
         return userProfileRepository.findUserProfileByUsername(username).orElseThrow();
     }
@@ -93,6 +99,7 @@ public class UserProfileService {
 
         MyUser user = extractUserFromToken.extractUserFromToken(httpServletRequest).getBody();
 
+        assert user != null;
         return createUserProfileFromRequest(request, user);
     }
 
@@ -109,7 +116,8 @@ public class UserProfileService {
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE"})
     public UserProfile addUserProfile(UserProfileRequest request, Long userId) {
 
-        MyUser user = userRepository.findById(userId).orElseThrow();;
+        MyUser user = userRepository.findById(userId).orElseThrow();
+        ;
 
         return createUserProfileFromRequest(request, user);
     }
@@ -187,5 +195,26 @@ public class UserProfileService {
 
     public UserProfile updateUserProfile(UserProfile updatedProfile) {
         return userProfileRepository.save(updatedProfile);
+    }
+
+    public UserProfile patchUserProfile(String username, JsonPatch patch) throws JsonPatchException, JsonProcessingException {
+        UserProfile profile = fetchUserProfile(username);
+        UserProfile patchedProfile = applyPatchToProfile(patch, profile);
+        return updateUserProfile(patchedProfile);
+    }
+
+    private UserProfile applyPatchToProfile(JsonPatch patch, UserProfile targetProfile) throws JsonPatchException, JsonProcessingException {
+        SimpleModule simpleModule = new SimpleModule();
+        simpleModule.addDeserializer(UserProfile.class, new UserProfileDeserializer());
+        objectMapper.registerModule(simpleModule);
+        try {
+            JsonNode patched = patch.apply(objectMapper.convertValue(targetProfile, JsonNode.class));
+            return objectMapper.treeToValue(patched, UserProfile.class);
+        } catch (JsonPatchException e) {
+            throw new JsonPatchException(e.getMessage());
+        } catch (JsonProcessingException e) {
+            throw new JsonProcessingException(e.getMessage()) {
+            };
+        }
     }
 }

@@ -55,7 +55,6 @@ public class UserProfileDeserializer extends StdDeserializer<UserProfile> {
         }
         if (node.has("profilePhoto") && !node.get("profilePhoto").isNull()) {
             String profilePhotoBase64 = node.get("profilePhoto").asText();
-            System.out.println("photo" + profilePhotoBase64);
             byte[] profilePhoto = Base64.getDecoder().decode(profilePhotoBase64);
             profile.setProfilePhoto(profilePhoto);
         }

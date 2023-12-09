@@ -34,4 +34,7 @@ UPDATE UserProfile U SET firstName = :firstName, goal = :goal, lastName = :lastN
             byte[] profilePhoto,
             UserRole role
     );
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    UserProfile save(UserProfile userProfile);
 }

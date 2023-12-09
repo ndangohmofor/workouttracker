@@ -40,7 +40,7 @@ public class UserProfileService {
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_USER"})
-    public UserProfileRequest fetchUserProfile(HttpServletRequest request) {
+    public UserProfile fetchUserProfile(HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization").substring(7);
         String username = jwtUtil.extractUsername(accessToken);
         MyUser user = userRepository.findByUsername(username).orElseThrow();
@@ -57,19 +57,9 @@ public class UserProfileService {
         return userProfileRepository.findUserProfileByUsername(username).orElseThrow();
     }
 
-    private UserProfileRequest getUserProfileByUser(MyUser user) {
+    private UserProfile getUserProfileByUser(MyUser user) {
         UserProfile profile = userProfileRepository.findUserProfileByUserId(user.getId()).orElse(null);
-        UserProfileRequest profileRequest = new UserProfileRequest();
-        if (profile != null) {
-            profileRequest.setFirstName(profile.getFirstName());
-            profileRequest.setLastName(profile.getLastName());
-            profileRequest.setPreferredName(profile.getPreferredName());
-            profileRequest.setUsername(profile.getUsername());
-            profileRequest.setUserRole(profile.getRole());
-            profileRequest.setProfilePhoto(profile.getProfilePhoto());
-            profileRequest.setGoal(profile.getGoal());
-        }
-        return (profileRequest);
+        return (profile);
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE"})

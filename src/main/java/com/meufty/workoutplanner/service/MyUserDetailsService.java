@@ -57,7 +57,7 @@ public class MyUserDetailsService implements UserDetailsService {
         if (userExists) {
             MyUser existingUser = userRepository.findByUsername(myUser.getUsername()).get();
             log.info("Username: " + myUser.getUsername() + " is already registered. Please confirm your email address");
-            mailSender.send(myUser.getEmail(), myUser.getUsername(), String.valueOf(confirmationTokenRepository.findTokenByUserId(existingUser.getId()).get()));
+            mailSender.send(myUser.getEmail(), myUser.getUsername(), String.valueOf(confirmationTokenRepository.findTokenByUserId(existingUser.getId()).orElseThrow()));
             throw new IllegalStateException("Username: " + myUser.getUsername() + " is registered but not confirmed. Please check and confirm your email address");
         }
         //Everything below happens if the user does not exist => User is created, token is generated and email is sent!

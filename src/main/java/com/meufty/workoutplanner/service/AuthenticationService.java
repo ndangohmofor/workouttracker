@@ -86,6 +86,6 @@ public class AuthenticationService {
                 //TODO: Enable the secure parameter to get the cookie to be transmitted over https
 //                .secure(true)
 //                .sameSite("None")
-                .maxAge(86400).domain("localhost").build();
+                .maxAge(86400).domain("192.168.1.132").build();
     }
 }

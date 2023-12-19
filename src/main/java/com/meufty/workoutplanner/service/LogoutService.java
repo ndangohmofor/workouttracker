@@ -25,14 +25,16 @@ public class LogoutService implements LogoutHandler {
     UserRepository userRepository;
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        Cookie refreshTokenCookie = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals("refreshToken")).collect(Collectors.toList()).get(0);
+        Cookie refreshTokenCookie = request.getCookies().length > 0 ? Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals("refreshToken")).collect(Collectors.toList()).get(0) : null;
 
-        var refreshToken = refreshTokenCookie.getValue();
+        if (refreshTokenCookie != null){
+            var refreshToken = refreshTokenCookie.getValue();
 
-        refreshTokenCookie.setMaxAge(0);
-        refreshTokenCookie.setValue(null);
-        response.addCookie(refreshTokenCookie);
-        jwtUtil.deleteAllUserTokens(refreshToken);
+            refreshTokenCookie.setMaxAge(0);
+            refreshTokenCookie.setValue(null);
+            response.addCookie(refreshTokenCookie);
+            jwtUtil.deleteAllUserTokens(refreshToken);
+        }
 
         ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString()).build();
     }

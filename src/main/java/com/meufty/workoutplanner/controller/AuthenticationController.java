@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.NoSuchElementException;
 
 @CrossOrigin
 @RestController
@@ -21,7 +22,7 @@ public class AuthenticationController {
     AuthenticationService service;
 
     @PostMapping(path = "/login")
-    public AuthenticationResponse createAuthenticationToken(@RequestBody @Valid AuthenticationRequest authenticationRequest, HttpServletResponse response) throws BadCredentialsException {
+    public AuthenticationResponse createAuthenticationToken(@RequestBody @Valid AuthenticationRequest authenticationRequest, HttpServletResponse response) throws BadCredentialsException, NoSuchElementException {
        return service.authenticate(authenticationRequest, response);
     }
 

@@ -5,12 +5,15 @@ import com.meufty.workoutplanner.api.AuthenticationResponse;
 import com.meufty.workoutplanner.model.MyUser;
 import com.meufty.workoutplanner.model.Token;
 import com.meufty.workoutplanner.model.TokenType;
+import com.meufty.workoutplanner.repository.ConfirmationTokenRepository;
 import com.meufty.workoutplanner.repository.TokenRepository;
 import com.meufty.workoutplanner.repository.UserRepository;
+import com.meufty.workoutplanner.token.ConfirmationToken;
 import com.meufty.workoutplanner.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 
@@ -41,26 +45,32 @@ public class AuthenticationService {
     UserRepository userRepository;
     @Autowired
     TokenRepository tokenRepository;
+    @Autowired
+    ConfirmationTokenRepository confirmationTokenRepository;
     public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest, HttpServletResponse servletResponse) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
         } catch (BadCredentialsException e) {
             throw new BadCredentialsException("Incorrect Username or Password", e);
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        final UserDetails userDetails = myUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-        final String jwt = jwtTokenUtil.generateToken(userDetails, LOGIN_EXPIRY_TIME_MS);
-        final String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
-        MyUser user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
-        var refreshjwt = saveUserGeneratedToken(refreshToken, user, TokenType.REFRESH);
-        var token = saveUserGeneratedToken(jwt, user, TokenType.BEARER);
-        jwtTokenUtil.deleteAllUserTokens(user);
-        tokenRepository.save(refreshjwt);
-        tokenRepository.save(token);
-        AuthenticationResponse response = new AuthenticationResponse(jwt, refreshToken, user.getUsername(), user.getUserRole());
-        ResponseCookie authCookie = getRefreshTokenCookie(refreshjwt);
-        servletResponse.addHeader("Set-Cookie", authCookie.toString());
-        return (response);
+        try {
+            final UserDetails userDetails = myUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+            final String jwt = jwtTokenUtil.generateToken(userDetails, LOGIN_EXPIRY_TIME_MS);
+            final String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
+            MyUser user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
+            var refreshjwt = saveUserGeneratedToken(refreshToken, user, TokenType.REFRESH);
+            var token = saveUserGeneratedToken(jwt, user, TokenType.BEARER);
+            confirmationTokenRepository.findByMyUserIdAndConfirmedAtIsNull(user.getId()).orElseThrow();
+            jwtTokenUtil.deleteAllUserTokens(user);
+            tokenRepository.save(refreshjwt);
+            tokenRepository.save(token);
+            AuthenticationResponse response = new AuthenticationResponse(jwt, refreshToken, user.getUsername(), user.getUserRole());
+            ResponseCookie authCookie = getRefreshTokenCookie(refreshjwt);
+            servletResponse.addHeader("Set-Cookie", authCookie.toString());
+            return (response);
+        } catch (NoSuchElementException e){
+            throw new NoSuchElementException("Email address not confirmed");
+        }
     }
 
     private static Token saveUserGeneratedToken(String token, MyUser user, TokenType type) {

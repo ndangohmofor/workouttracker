@@ -23,7 +23,7 @@ import org.springframework.kafka.support.SendResult;
 public class EmailService implements EmailSender {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
-    private static final String LINK = "http://localhost:8080/api/v1/registration/confirm?token=";
+    private static final String LINK = "http://192.168.1.132:8080/api/v1/registration/confirm?token=";
 
     @Value("${spring.kafka.template.email-topic}")
     private String kafkaTopic;

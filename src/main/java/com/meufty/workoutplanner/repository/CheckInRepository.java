@@ -7,5 +7,5 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CheckInRepository extends JpaRepository<CheckIn, Long> {
-    List<LocalDateTime> getCheckInByIdIs(Long userId);
+    List<LocalDateTime> getCheckInById(Long userId);
 }

@@ -21,4 +21,19 @@ public class CheckInService {
         MyUser user = jwtUtil.getUserFromHttpRequest(request);
         return checkInRepository.getCheckInById(user.getId());
     }
+
+    public CheckIn addCheckin(HttpServletRequest request){
+        MyUser user = jwtUtil.getUserFromHttpRequest(request);
+        CheckIn checkIn = new CheckIn();
+        checkIn.setId(user.getId());
+        checkIn.setCheckInTime(LocalDateTime.now());
+        return checkInRepository.save(checkIn);
+    }
+
+    public CheckIn addCheckout(HttpServletRequest request){
+        MyUser user = jwtUtil.getUserFromHttpRequest(request);
+        CheckIn checkIn = checkInRepository.getCurrentCheckInById(user.getId());
+        checkIn.setCheckOutTime(LocalDateTime.now());
+        return checkInRepository.save(checkIn);
+    }
 }

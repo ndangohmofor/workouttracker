@@ -41,9 +41,7 @@ public class UserProfileService {
 
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE", "ROLE_USER"})
     public UserProfile fetchUserProfile(HttpServletRequest request) {
-        String accessToken = request.getHeader("Authorization").substring(7);
-        String username = jwtUtil.extractUsername(accessToken);
-        MyUser user = userRepository.findByUsername(username).orElseThrow();
+        MyUser user = jwtUtil.getUserFromHttpRequest(request);
         return getUserProfileByUser(user);
     }
 

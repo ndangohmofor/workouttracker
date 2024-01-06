@@ -14,6 +14,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -120,4 +121,11 @@ public class JwtUtil {
     }
 
     //TODO: add methods to revoke both tokens, as well as other parameters of token such as isValid, is Revoked, etc
+
+    //Method to extract user from http request
+    public MyUser getUserFromHttpRequest(HttpServletRequest request) {
+        String accessToken = request.getHeader("Authorization").substring(7);
+        String username = extractUsername(accessToken);
+        return userRepository.findByUsername(username).orElseThrow();
+    }
 }

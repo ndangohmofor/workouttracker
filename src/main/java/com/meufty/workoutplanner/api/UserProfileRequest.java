@@ -1,15 +1,9 @@
 package com.meufty.workoutplanner.api;
 
 import com.meufty.workoutplanner.model.UserRole;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
-@NoArgsConstructor
-@Getter
-@Setter
-@ToString
+@Data
 public class UserProfileRequest {
     private String firstName;
     private String lastName;

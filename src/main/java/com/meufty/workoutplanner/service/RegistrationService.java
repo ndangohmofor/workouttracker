@@ -1,7 +1,6 @@
 package com.meufty.workoutplanner.service;
 
 import com.meufty.workoutplanner.api.RegistrationRequest;
-import com.meufty.workoutplanner.api.UserProfileRequest;
 import com.meufty.workoutplanner.email.EmailSender;
 import com.meufty.workoutplanner.model.MyUser;
 import com.meufty.workoutplanner.model.UserProfile;

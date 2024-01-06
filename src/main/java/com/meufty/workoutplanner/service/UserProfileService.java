@@ -58,8 +58,7 @@ public class UserProfileService {
     }
 
     private UserProfile getUserProfileByUser(MyUser user) {
-        UserProfile profile = userProfileRepository.findUserProfileByUserId(user.getId()).orElse(null);
-        return (profile);
+        return (userProfileRepository.findUserProfileByUserId(user.getId()).orElse(null));
     }
 
     @Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE"})

@@ -36,4 +36,12 @@ public class CheckInService {
         checkIn.setCheckOutTime(LocalDateTime.now());
         return checkInRepository.save(checkIn);
     }
+
+    public boolean getCheckinStatus(MyUser user){
+        CheckIn checkedin = checkInRepository.getCurrentCheckInById(user.getId());
+        if (null == checkedin){
+            return false;
+        }
+        return  checkedin.isCheckedIn();
+    }
 }

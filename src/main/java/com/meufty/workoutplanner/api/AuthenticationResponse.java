@@ -14,4 +14,6 @@ public class AuthenticationResponse {
     private String jwtRefreshToken;
     private String username;
     private UserRole role;
+    @JsonProperty("checkedIn")
+    private Boolean checkedin;
 }

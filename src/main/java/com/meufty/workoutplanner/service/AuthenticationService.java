@@ -44,6 +44,8 @@ public class AuthenticationService {
     TokenRepository tokenRepository;
     @Autowired
     ConfirmationTokenRepository confirmationTokenRepository;
+    @Autowired
+    CheckInService checkInService;
     public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest, HttpServletResponse servletResponse) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
@@ -57,11 +59,12 @@ public class AuthenticationService {
             MyUser user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
             var refreshjwt = saveUserGeneratedToken(refreshToken, user, TokenType.REFRESH);
             var token = saveUserGeneratedToken(jwt, user, TokenType.BEARER);
+            var checkedIn = checkInService.getCheckinStatus(user);
             confirmationTokenRepository.findByMyUserIdAndConfirmedAtIsNull(user.getId()).orElseThrow();
             jwtTokenUtil.deleteAllUserTokens(user);
             tokenRepository.save(refreshjwt);
             tokenRepository.save(token);
-            AuthenticationResponse response = new AuthenticationResponse(jwt, refreshToken, user.getUsername(), user.getUserRole());
+            AuthenticationResponse response = new AuthenticationResponse(jwt, refreshToken, user.getUsername(), user.getUserRole(), checkedIn);
             ResponseCookie authCookie = getRefreshTokenCookie(refreshjwt);
             servletResponse.addHeader("Set-Cookie", authCookie.toString());
             return (response);
@@ -81,10 +84,11 @@ public class AuthenticationService {
         expectedMap.put("role", userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
         String token = jwtTokenUtil.generateRefreshToken(expectedMap, username);
         MyUser myUser = userRepository.findByUsername(jwtTokenUtil.extractUsername(token)).orElseThrow();
+        var checkedIn = checkInService.getCheckinStatus(myUser);
         jwtTokenUtil.revokeUserJwtTokens(myUser);
         Token newToken = saveUserGeneratedToken(token, myUser, TokenType.BEARER);
         tokenRepository.save(newToken);
-        AuthenticationResponse response = new AuthenticationResponse(token, refreshToken, myUser.getUsername(), myUser.getUserRole());
+        AuthenticationResponse response = new AuthenticationResponse(token, refreshToken, myUser.getUsername(), myUser.getUserRole(), checkedIn);
         return response;
     }
 

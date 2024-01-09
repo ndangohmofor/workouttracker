@@ -98,7 +98,7 @@ public class SecurityConfig {
                 .permitAll()
                 .antMatchers("/api/v*/admin").hasRole("ADMIN")
                 .mvcMatchers("/api/v*/profiles/profile**").hasAnyRole("ADMIN", "USER", "EMPLOYEE")
-                .mvcMatchers("/api/v*/checkins/").hasAnyRole("ADMIN", "USER", "EMPLOYEE")
+                .mvcMatchers("/api/v*/checkins/**").hasAnyRole("ADMIN", "USER", "EMPLOYEE")
                 .anyRequest()
                 .authenticated()
                 .and()

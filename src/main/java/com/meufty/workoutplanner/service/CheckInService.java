@@ -25,7 +25,7 @@ public class CheckInService {
     public CheckIn addCheckin(HttpServletRequest request){
         MyUser user = jwtUtil.getUserFromHttpRequest(request);
         CheckIn checkIn = new CheckIn();
-        checkIn.setId(user.getId());
+        checkIn.setUserId(user.getId());
         checkIn.setCheckInTime(LocalDateTime.now());
         return checkInRepository.save(checkIn);
     }

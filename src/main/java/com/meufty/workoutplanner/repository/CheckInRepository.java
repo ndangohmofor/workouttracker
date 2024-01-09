@@ -13,7 +13,7 @@ public interface CheckInRepository extends JpaRepository<CheckIn, Long> {
     List<CheckIn> getCheckInById(Long userId);
 
     @Query("""
-            SELECT C FROM CheckIn C WHERE C.userId = :userId AND C.checkOutTime = NULL 
+            SELECT c FROM CheckIn c WHERE c.userId = :userId AND c.checkOutTime = NULL
             """)
     CheckIn getCurrentCheckInById(Long userId);
 }

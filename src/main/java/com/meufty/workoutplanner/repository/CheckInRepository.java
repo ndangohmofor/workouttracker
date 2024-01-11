@@ -1,7 +1,6 @@
 package com.meufty.workoutplanner.repository;
 
 import com.meufty.workoutplanner.model.CheckIn;
-import com.meufty.workoutplanner.model.MyUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

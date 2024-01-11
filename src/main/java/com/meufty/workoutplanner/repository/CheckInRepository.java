@@ -18,7 +18,7 @@ public interface CheckInRepository extends JpaRepository<CheckIn, Long> {
             """)
     CheckIn getCurrentCheckInById(Long userId);
     @Query("""
-            SELECT max(c.checkInTime) FROM CheckIn c where c.userId = :userId
+            SELECT min(c.checkInTime) FROM CheckIn c where c.userId = :userId
             """)
     LocalDateTime getFirstCheckinDateById(Long userId);
 }

@@ -35,7 +35,7 @@ public class CheckinController {
         return checkInService.addCheckout(request);
     }
 
-    @GetMapping(path = "/usercheckins")
+    @GetMapping(path = "firstcheckin")
     @Secured({"ROLE_USER"})
     public LocalDateTime getFirstCheckInDate(HttpServletRequest request){
         return checkInService.getFirstCheckinDate(request);

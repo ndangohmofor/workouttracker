@@ -7,6 +7,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @AllArgsConstructor
@@ -32,5 +33,11 @@ public class CheckinController {
     @Secured({"ROLE_USER"})
     public CheckIn addUserCheckout(HttpServletRequest request){
         return checkInService.addCheckout(request);
+    }
+
+    @GetMapping(path = "/usercheckins")
+    @Secured({"ROLE_USER"})
+    public LocalDateTime getFirstCheckInDate(HttpServletRequest request){
+        return checkInService.getFirstCheckinDate(request);
     }
 }

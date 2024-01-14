@@ -35,9 +35,9 @@ public class CheckinController {
         return checkInService.addCheckout(request);
     }
 
-    @GetMapping(path = "firstcheckin")
+    @GetMapping(path = "lastworkoutdate")
     @Secured({"ROLE_USER"})
-    public LocalDateTime getFirstCheckInDate(HttpServletRequest request){
-        return checkInService.getFirstCheckinDate(request);
+    public LocalDateTime getLastWorkoutDate(HttpServletRequest request){
+        return checkInService.getLastWorkoutDate(request);
     }
 }

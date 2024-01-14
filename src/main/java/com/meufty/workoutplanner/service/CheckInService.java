@@ -45,8 +45,8 @@ public class CheckInService {
         return  checkedin.isCheckedIn();
     }
 
-    public LocalDateTime getFirstCheckinDate(HttpServletRequest request){
+    public LocalDateTime getLastWorkoutDate(HttpServletRequest request){
         MyUser user = jwtUtil.getUserFromHttpRequest(request);
-        return checkInRepository.getFirstCheckinDateById(user.getId());
+        return checkInRepository.getLastWorkoutDateById(user.getId());
     }
 }

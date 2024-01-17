@@ -7,6 +7,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -39,5 +40,11 @@ public class CheckinController {
     @Secured({"ROLE_USER"})
     public LocalDateTime getLastWorkoutDate(HttpServletRequest request){
         return checkInService.getLastWorkoutDate(request);
+    }
+
+    @GetMapping(path = "avgworkout")
+    @Secured({"ROLE_USER"})
+    public Duration getAverageWorkout(HttpServletRequest request){
+        return checkInService.getWorkoutStats(request);
     }
 }

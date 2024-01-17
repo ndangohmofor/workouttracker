@@ -20,4 +20,6 @@ public interface CheckInRepository extends JpaRepository<CheckIn, Long> {
             SELECT max(c.checkOutTime) FROM CheckIn c where c.userId = :userId
             """)
     LocalDateTime getLastWorkoutDateById(Long userId);
+
+    List<CheckIn> getCheckInByUserId(Long userId);
 }

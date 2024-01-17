@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -48,5 +49,17 @@ public class CheckInService {
     public LocalDateTime getLastWorkoutDate(HttpServletRequest request){
         MyUser user = jwtUtil.getUserFromHttpRequest(request);
         return checkInRepository.getLastWorkoutDateById(user.getId());
+    }
+
+    public Duration getWorkoutStats(HttpServletRequest request){
+        MyUser user = jwtUtil.getUserFromHttpRequest(request);
+        List<CheckIn> checkInList = checkInRepository.getCheckInByUserId(user.getId());
+        Duration avgWorkoutDuration = Duration.ofSeconds(0);
+        for (CheckIn checkIn: checkInList){
+            if (checkIn.getCheckOutTime() != null){
+                avgWorkoutDuration = Duration.between(checkIn.getCheckOutTime(), checkIn.getCheckInTime());
+            }
+        }
+        return avgWorkoutDuration;
     }
 }

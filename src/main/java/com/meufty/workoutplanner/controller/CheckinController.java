@@ -47,4 +47,10 @@ public class CheckinController {
     public Long getAverageWorkout(HttpServletRequest request){
         return checkInService.getWorkoutStats(request).getSeconds();
     }
+
+    @GetMapping(path = "avgSessionWorkout")
+    @Secured({"ROLE_USER"})
+    public Long getAverageSessionWorkout(HttpServletRequest request){
+        return checkInService.getSessionWorkoutStats(request).getSeconds();
+    }
 }

@@ -48,7 +48,7 @@ public class CheckInService {
 
     public LocalDateTime getLastWorkoutDate(HttpServletRequest request){
         MyUser user = jwtUtil.getUserFromHttpRequest(request);
-        return checkInRepository.getLastWorkoutDateById(user.getId());
+        return checkInRepository.getLastWorkoutDateById(user.getId()).getCheckOutTime();
     }
 
     public Duration getWorkoutStats(HttpServletRequest request){
@@ -61,5 +61,15 @@ public class CheckInService {
             }
         }
         return avgWorkoutDuration;
+    }
+
+    public Duration getSessionWorkoutStats(HttpServletRequest request){
+        MyUser user = jwtUtil.getUserFromHttpRequest(request);
+        CheckIn lastCheckIn = checkInRepository.getLastWorkoutDateById(user.getId());
+        Duration avgWorkoutSessionDuration = Duration.ofSeconds(0);
+        if (lastCheckIn.getCheckOutTime() != null){
+            avgWorkoutSessionDuration = Duration.between(lastCheckIn.getCheckOutTime(), lastCheckIn.getCheckInTime());
+        }
+        return avgWorkoutSessionDuration;
     }
 }

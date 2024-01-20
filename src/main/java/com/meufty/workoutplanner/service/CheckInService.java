@@ -68,7 +68,7 @@ public class CheckInService {
         CheckIn lastCheckIn = checkInRepository.getLastWorkoutDateById(user.getId());
         Duration avgWorkoutSessionDuration = Duration.ofSeconds(0);
         if (lastCheckIn.getCheckOutTime() != null){
-            avgWorkoutSessionDuration = Duration.between(lastCheckIn.getCheckOutTime(), lastCheckIn.getCheckInTime());
+            avgWorkoutSessionDuration = Duration.between(lastCheckIn.getCheckInTime(), lastCheckIn.getCheckOutTime());
         }
         return avgWorkoutSessionDuration;
     }

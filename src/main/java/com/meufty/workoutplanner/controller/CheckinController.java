@@ -42,13 +42,13 @@ public class CheckinController {
         return checkInService.getLastWorkoutDate(request);
     }
 
-    @GetMapping(path = "avgworkout")
+    @GetMapping(path = "totalWorkout")
     @Secured({"ROLE_USER"})
     public Long getAverageWorkout(HttpServletRequest request){
         return checkInService.getWorkoutStats(request).getSeconds();
     }
 
-    @GetMapping(path = "avgSessionWorkout")
+    @GetMapping(path = "totalSessionWorkout")
     @Secured({"ROLE_USER"})
     public Long getAverageSessionWorkout(HttpServletRequest request){
         return checkInService.getSessionWorkoutStats(request).getSeconds();
